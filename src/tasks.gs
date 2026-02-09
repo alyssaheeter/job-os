@@ -27,9 +27,10 @@ function createOutreachDraftForJob(jobId) {
     tone: getSetting("DEFAULT_EMAIL_TONE")
   });
 
-  var body = draft.body + "\n\n" + buildTrackingToken_(jobId, taskId, "outreach");
+  var body = draft.body + "\n\n";
+  var htmlBody = draft.body + "<br><br>" + buildTrackingTokenHtmlComment_(jobId, taskId, "outreach");
   var recipient = job.contact_email || "";
-  var draftObj = GmailApp.createDraft(recipient || "", draft.subject || "", body, {});
+  var draftObj = GmailApp.createDraft(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
 
   updateTaskDraft_(taskId, draftObj.getId());
   logEvent("INFO", "draft_outreach", jobId, taskId, { draftId: draftObj.getId() });
@@ -59,16 +60,17 @@ function createFollowupDraftForTask(taskId) {
     tone: getSetting("DEFAULT_EMAIL_TONE")
   });
 
-  var body = draft.body + "\n\n" + buildTrackingToken_(job.job_id, task.task_id, "followup");
+  var body = draft.body + "\n\n";
+  var htmlBody = draft.body + "<br><br>" + buildTrackingTokenHtmlComment_(job.job_id, task.task_id, "followup");
   var recipient = job.contact_email || "";
 
   var draftId = task.draft_id;
   var updatedDraftId = "";
   if (draftId) {
-    var updated = GmailApp.getDraft(draftId).update(recipient || "", draft.subject || "", body, {});
+    var updated = GmailApp.getDraft(draftId).update(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
     updatedDraftId = updated.getId();
   } else {
-    var created = GmailApp.createDraft(recipient || "", draft.subject || "", body, {});
+    var created = GmailApp.createDraft(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
     updatedDraftId = created.getId();
   }
 
@@ -91,4 +93,8 @@ function buildTrackingToken_(jobId, taskId, action) {
   }
   token += " action=" + action + "]]";
   return token;
+}
+
+function buildTrackingTokenHtmlComment_(jobId, taskId, action) {
+  return "<!-- " + buildTrackingToken_(jobId, taskId, action) + " -->";
 }

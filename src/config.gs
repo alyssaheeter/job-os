@@ -17,7 +17,9 @@ var JOBOS_DEFAULT_SETTINGS = {
   FIT_SCORE_ENABLED: "false",
   FIT_SCORE_THRESHOLD: "75",
   MAX_OUTPUT_TOKENS: "900",
-  TEMPERATURE: "0.3"
+  TEMPERATURE: "0.3",
+  INBOX_SCAN_QUERY: "newer_than:2d (subject:(interview OR opportunity OR recruiter OR role OR position OR application OR hiring OR \"next steps\") OR \"linkedin.com/jobs/view\" OR greenhouse.io OR lever.co OR workday OR ashbyhq OR smartrecruiters)",
+  INBOX_SCAN_LOOKBACK_DAYS: "2"
 };
 
 function getSettingsSheet_() {

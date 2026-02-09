@@ -173,6 +173,33 @@ Minimum required keys (you may add more):
 - `FIT_SCORE_THRESHOLD` (default `75`)
 - `MAX_OUTPUT_TOKENS` (default `900`)
 - `TEMPERATURE` (default `0.3`)
+- `INBOX_SCAN_QUERY` (default focused query for inbox signal scan)
+- `INBOX_SCAN_LOOKBACK_DAYS` (default `2`)
+
+---
+
+## How inbox capture works (Option 1: focused filter)
+The **Inbox Signal Scan** runs on a 10‑minute time trigger and only looks at **inbox messages** that match a focused Gmail search query. This keeps scope narrow and avoids full‑inbox scans.
+
+**Scope + privacy notes**
+- Uses `INBOX_SCAN_QUERY` plus `INBOX_SCAN_LOOKBACK_DAYS` to limit results (the query is always forced to include `in:inbox` and a lookback window).
+- Does **not** require labels, does **not** scan all inbox mail, and does **not** read outside the configured query window.
+- Logs only minimal metadata + snippet to the `INTERACTIONS` sheet (no attachments, no scraping job boards).
+
+**Linking logic**
+1. If a `[[JOBOS ...]]` tracking token is found (HTML comment in outgoing drafts), the interaction is linked to that `job_id` with high confidence.
+2. Otherwise, the scan looks for a URL, normalizes it, and creates/updates a `JOBS` row based on that URL.
+3. If neither is found, the interaction is logged with `needs_review=true`.
+
+**Interaction types**
+Minimal classification: `JOB_LINK`, `RECRUITER`, `INTERVIEW`, `NETWORKING`, or `UNKNOWN`.
+
+### Verification steps (first‑contact capture without labels)
+1. Ensure `INBOX_SCAN_QUERY` and `INBOX_SCAN_LOOKBACK_DAYS` are set in **SETTINGS**.
+2. Run **JobOS → Run First‑Time Setup** (to create the `INTERACTIONS` sheet + trigger).
+3. Send yourself a test email that matches the query (e.g., subject includes “interview” or contains a job URL).
+4. Run `scanInboxForSignals` manually from the Apps Script editor (for immediate feedback).
+5. Confirm a new row appears in **INTERACTIONS** and, if a URL was detected, a `JOBS` row is created/linked.
 
 ---
 
