@@ -1,0 +1,16 @@
+{
+  "name": "job-hunt-os",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
+  },
+  "scripts": {
+    "clasp:use:alyssa": "node scripts/clasp-use.mjs alyssa",
+    "clasp:use:mom": "node scripts/clasp-use.mjs mom",
+    "push": "clasp push",
+    "pull": "clasp pull",
+    "deploy": "clasp deploy --description \"[FILL-IN]\""
+  }
+}
