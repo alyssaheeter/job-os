@@ -178,6 +178,29 @@ Minimum required keys (you may add more):
 
 ---
 
+## Checkbox Actions Workflow
+The JOBS sheet now supports **checkbox-driven actions** (no menu clicks). After running **JobOS → Run First-Time Setup**, the following columns are available:
+
+**Action checkboxes**
+- `DO_RESEARCH` → runs the Decision Brief (fast option A).
+- `DO_APPLY` → generates resume + cover letter, and creates a follow-up task.
+- `DO_DRAFT_OUTREACH` → creates or updates an outreach draft with a hidden tracking token.
+- `DO_DRAFT_FOLLOWUP` → creates or updates a follow-up draft with a hidden tracking token.
+
+**Status + audit columns**
+- `RESEARCH_STATUS`, `RESEARCH_UPDATED_AT`
+- `APPLY_STATUS`, `APPLY_UPDATED_AT`
+- `DRAFT_OUTREACH_STATUS`, `DRAFT_OUTREACH_UPDATED_AT`
+- `DRAFT_FOLLOWUP_STATUS`, `DRAFT_FOLLOWUP_UPDATED_AT`
+- `LAST_ACTION_ERROR` (any errors from the last checkbox action)
+
+**Behavior**
+- Each action is idempotent. If a status is `DONE`, re-checking the box does nothing until you reset the status to `NEW`.
+- Checkboxes auto-clear after processing.
+- Decision Brief output is stored in the **RESEARCH** sheet.
+
+---
+
 ## How inbox capture works (Option 1: focused filter)
 The **Inbox Signal Scan** runs on a 10‑minute time trigger and only looks at **inbox messages** that match a focused Gmail search query. This keeps scope narrow and avoids full‑inbox scans.
 
@@ -200,6 +223,27 @@ Minimal classification: `JOB_LINK`, `RECRUITER`, `INTERVIEW`, `NETWORKING`, or `
 3. Send yourself a test email that matches the query (e.g., subject includes “interview” or contains a job URL).
 4. Run `scanInboxForSignals` manually from the Apps Script editor (for immediate feedback).
 5. Confirm a new row appears in **INTERACTIONS** and, if a URL was detected, a `JOBS` row is created/linked.
+
+---
+
+## 10-Minute Verification Checklist
+1. Run **JobOS → Run First-Time Setup** to create sheets + install triggers.
+2. Confirm JOBS has the new checkbox + status columns.
+3. Add a test row with `job_id`, `company`, `role_title`, and a company URL (not a job board).
+4. Check `DO_RESEARCH` and confirm:
+   - `RESEARCH_STATUS` becomes `DONE`.
+   - A row appears in the **RESEARCH** sheet.
+5. Check `DO_APPLY` and confirm:
+   - Resume + cover IDs populate in JOBS.
+   - A follow-up task exists in TASKS.
+6. Check `DO_DRAFT_OUTREACH` and confirm:
+   - `outreach_draft_id` is set.
+   - Draft contains the hidden `[[JOBOS ...]]` token in the HTML body.
+7. Check `DO_DRAFT_FOLLOWUP` and confirm:
+   - A follow-up draft is created or updated in TASKS.
+8. Verify checkboxes auto-clear after each action.
+9. Set a status to `DONE`, re-check the box, and confirm it does **not** rerun.
+10. Reset status to `NEW`, re-check, and confirm it reruns.
 
 ---
 

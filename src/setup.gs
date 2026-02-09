@@ -12,7 +12,12 @@ function createMissingSheets() {
       "job_id", "url", "company", "role_title", "source", "status", "date_added", "job_description",
       "job_summary_json", "fit_score", "resume_doc_id", "cover_letter_doc_id", "outreach_draft_id",
       "last_contact_date", "next_follow_up_date", "lead_email_message_id", "dedupe_key",
-      "ai_resume_used_facts_json", "ai_cover_used_facts_json"
+      "ai_resume_used_facts_json", "ai_cover_used_facts_json",
+      "DO_RESEARCH", "RESEARCH_STATUS", "RESEARCH_UPDATED_AT",
+      "DO_APPLY", "APPLY_STATUS", "APPLY_UPDATED_AT",
+      "DO_DRAFT_OUTREACH", "DRAFT_OUTREACH_STATUS", "DRAFT_OUTREACH_UPDATED_AT",
+      "DO_DRAFT_FOLLOWUP", "DRAFT_FOLLOWUP_STATUS", "DRAFT_FOLLOWUP_UPDATED_AT",
+      "LAST_ACTION_ERROR"
     ] },
     { name: "TASKS", headers: [
       "task_id", "job_id", "task_type", "status", "due_date", "draft_id", "sent_message_id",
@@ -30,6 +35,11 @@ function createMissingSheets() {
     ] },
     { name: "LOGS", headers: [
       "timestamp", "level", "action", "job_id", "task_id", "details_json"
+    ] },
+    { name: "RESEARCH", headers: [
+      "job_id", "company", "role", "research_status", "culture_summary", "pay_summary",
+      "benefits_summary", "location_notes", "interview_process_notes", "pros", "cons",
+      "red_flags", "questions_to_ask", "sources_json", "generated_at"
     ] }
   ];
 
@@ -38,8 +48,13 @@ function createMissingSheets() {
     if (!sheet) {
       sheet = ss.insertSheet(def.name);
     }
-    ensureHeadersIfEmpty_(sheet, def.headers);
+    ensureHeaders_(sheet, def.headers);
   });
+
+  var jobsSheet = ss.getSheetByName("JOBS");
+  if (jobsSheet) {
+    applyCheckboxValidation_(jobsSheet, ["DO_RESEARCH", "DO_APPLY", "DO_DRAFT_OUTREACH", "DO_DRAFT_FOLLOWUP"]);
+  }
 
   ensureDefaultSettings_();
 }
@@ -58,7 +73,7 @@ function ensureDefaultSettings_() {
 }
 
 function installTriggers() {
-  var handlers = ["scanInboxForLeads", "scanInboxForSignals", "reconcileSentMail", "integrityCheck"];
+  var handlers = ["scanInboxForLeads", "scanInboxForSignals", "reconcileSentMail", "integrityCheck", "handleOnEdit"];
   var existing = ScriptApp.getProjectTriggers();
   existing.forEach(function(trigger) {
     var handler = trigger.getHandlerFunction();
@@ -71,6 +86,18 @@ function installTriggers() {
   ScriptApp.newTrigger("scanInboxForSignals").timeBased().everyMinutes(10).create();
   ScriptApp.newTrigger("reconcileSentMail").timeBased().everyMinutes(10).create();
   ScriptApp.newTrigger("integrityCheck").timeBased().atHour(2).everyDays(1).create();
+  ScriptApp.newTrigger("handleOnEdit").forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();
 
   logEvent("INFO", "install_triggers", "", "", { handlers: handlers });
+}
+
+function applyCheckboxValidation_(sheet, columns) {
+  var headerMap = getHeaderMap(sheet);
+  var maxRows = Math.max(sheet.getMaxRows() - 1, 1);
+  var rule = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+  columns.forEach(function(columnName) {
+    var columnIndex = headerMap[columnName];
+    if (!columnIndex) return;
+    sheet.getRange(2, columnIndex, maxRows, 1).setDataValidation(rule);
+  });
 }
