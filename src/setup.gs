@@ -24,6 +24,10 @@ function createMissingSheets() {
     { name: "LEADS", headers: [
       "lead_id", "job_id", "email_message_id", "detected_url", "status", "created_at"
     ] },
+    { name: "INTERACTIONS", headers: [
+      "interaction_id", "ts", "direction", "from", "to", "subject", "thread_id", "message_id",
+      "job_id", "type", "confidence", "needs_review", "url_found", "snippet"
+    ] },
     { name: "LOGS", headers: [
       "timestamp", "level", "action", "job_id", "task_id", "details_json"
     ] }
@@ -54,7 +58,7 @@ function ensureDefaultSettings_() {
 }
 
 function installTriggers() {
-  var handlers = ["scanInboxForLeads", "reconcileSentMail", "integrityCheck"];
+  var handlers = ["scanInboxForLeads", "scanInboxForSignals", "reconcileSentMail", "integrityCheck"];
   var existing = ScriptApp.getProjectTriggers();
   existing.forEach(function(trigger) {
     var handler = trigger.getHandlerFunction();
@@ -64,6 +68,7 @@ function installTriggers() {
   });
 
   ScriptApp.newTrigger("scanInboxForLeads").timeBased().everyMinutes(30).create();
+  ScriptApp.newTrigger("scanInboxForSignals").timeBased().everyMinutes(10).create();
   ScriptApp.newTrigger("reconcileSentMail").timeBased().everyMinutes(10).create();
   ScriptApp.newTrigger("integrityCheck").timeBased().atHour(2).everyDays(1).create();
 

@@ -7,7 +7,11 @@ function getSheetOrThrow_(name) {
 }
 
 function getHeaderMap(sheet) {
-  var headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var lastColumn = sheet.getLastColumn();
+  if (lastColumn === 0) {
+    return {};
+  }
+  var headerRow = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
   var map = {};
   for (var i = 0; i < headerRow.length; i++) {
     var key = String(headerRow[i] || "").trim();
