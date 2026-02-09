@@ -96,6 +96,25 @@ function ensureHeadersIfEmpty_(sheet, headers) {
   }
 }
 
+function ensureHeaders_(sheet, headers) {
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    return;
+  }
+  var headerMap = getHeaderMap(sheet);
+  var lastColumn = sheet.getLastColumn();
+  var missing = [];
+  headers.forEach(function(header) {
+    if (!headerMap[header]) {
+      missing.push(header);
+    }
+  });
+  if (missing.length === 0) {
+    return;
+  }
+  sheet.getRange(1, lastColumn + 1, 1, missing.length).setValues([missing]);
+}
+
 function coerceString_(value) {
   if (value === null || value === undefined) return "";
   return String(value);

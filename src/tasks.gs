@@ -98,3 +98,55 @@ function buildTrackingToken_(jobId, taskId, action) {
 function buildTrackingTokenHtmlComment_(jobId, taskId, action) {
   return "<!-- " + buildTrackingToken_(jobId, taskId, action) + " -->";
 }
+
+function ensureFollowupTaskForJob_(jobId) {
+  var taskSheet = getSheetOrThrow_("TASKS");
+  var taskRow = findLatestTaskRowForJob_(taskSheet, jobId, "followup");
+  if (taskRow !== -1) {
+    return readRowByMap(taskSheet, taskRow).task_id;
+  }
+  var dueDate = formatDate_(new Date(new Date().getTime() + getNumberSetting("FOLLOW_UP_DAYS_1", 3) * 24 * 60 * 60 * 1000));
+  return createTaskForJob_(taskSheet, jobId, "followup", "new", dueDate);
+}
+
+function getOrCreateFollowupTaskForJob_(jobId) {
+  var taskSheet = getSheetOrThrow_("TASKS");
+  var taskRow = findLatestTaskRowForJob_(taskSheet, jobId, "followup");
+  if (taskRow !== -1) {
+    var existing = readRowByMap(taskSheet, taskRow);
+    if (String(existing.status || "").toLowerCase() !== "done") {
+      return existing.task_id;
+    }
+  }
+  return createTaskForJob_(taskSheet, jobId, "followup", "draft", formatDate_(new Date()));
+}
+
+function createTaskForJob_(taskSheet, jobId, taskType, status, dueDate) {
+  var taskId = generateId_("task");
+  appendRowByMap(taskSheet, {
+    task_id: taskId,
+    job_id: jobId,
+    task_type: taskType,
+    status: status,
+    due_date: dueDate || "",
+    created_at: new Date(),
+    updated_at: new Date()
+  });
+  return taskId;
+}
+
+function findLatestTaskRowForJob_(taskSheet, jobId, taskType) {
+  var lastRow = taskSheet.getLastRow();
+  if (lastRow < 2) {
+    return -1;
+  }
+  var headerMap = getHeaderMap(taskSheet);
+  var data = taskSheet.getRange(2, 1, lastRow - 1, taskSheet.getLastColumn()).getValues();
+  for (var i = data.length - 1; i >= 0; i--) {
+    if (String(data[i][headerMap.job_id - 1]) === String(jobId) &&
+        String(data[i][headerMap.task_type - 1]) === String(taskType)) {
+      return i + 2;
+    }
+  }
+  return -1;
+}
