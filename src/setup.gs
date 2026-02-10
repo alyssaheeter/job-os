@@ -6,6 +6,18 @@ function runMeFirst() {
 
 function createMissingSheets() {
   var ss = SpreadsheetApp.getActive();
+  var jobActionColumns = [
+    { checkbox: "DO_RESEARCH", status: "RESEARCH_STATUS", updatedAt: "RESEARCH_UPDATED_AT" },
+    { checkbox: "DO_APPLY", status: "APPLY_STATUS", updatedAt: "APPLY_UPDATED_AT" },
+    { checkbox: "DO_DRAFT_OUTREACH", status: "DRAFT_OUTREACH_STATUS", updatedAt: "DRAFT_OUTREACH_UPDATED_AT" },
+    { checkbox: "DO_DRAFT_FOLLOWUP", status: "DRAFT_FOLLOWUP_STATUS", updatedAt: "DRAFT_FOLLOWUP_UPDATED_AT" }
+  ];
+  var jobActionHeaders = [];
+  jobActionColumns.forEach(function(action) {
+    jobActionHeaders.push(action.checkbox);
+    jobActionHeaders.push(action.status);
+    jobActionHeaders.push(action.updatedAt);
+  });
   var definitions = [
     { name: "SETTINGS", headers: ["KEY", "VALUE"] },
     { name: "JOBS", headers: [
@@ -13,13 +25,8 @@ function createMissingSheets() {
       "needs_review", "fetch_status", "contact_email", "date_added", "job_description",
       "job_summary_json", "fit_score", "resume_doc_id", "cover_letter_doc_id", "outreach_draft_id",
       "last_contact_date", "next_follow_up_date", "lead_email_message_id", "dedupe_key",
-      "ai_resume_used_facts_json", "ai_cover_used_facts_json",
-      "DO_RESEARCH", "RESEARCH_STATUS", "RESEARCH_UPDATED_AT",
-      "DO_APPLY", "APPLY_STATUS", "APPLY_UPDATED_AT",
-      "DO_DRAFT_OUTREACH", "DRAFT_OUTREACH_STATUS", "DRAFT_OUTREACH_UPDATED_AT",
-      "DO_DRAFT_FOLLOWUP", "DRAFT_FOLLOWUP_STATUS", "DRAFT_FOLLOWUP_UPDATED_AT",
-      "LAST_ACTION_ERROR"
-    ] },
+      "ai_resume_used_facts_json", "ai_cover_used_facts_json"
+    ].concat(jobActionHeaders).concat(["LAST_ACTION_ERROR"]) },
     { name: "TASKS", headers: [
       "task_id", "job_id", "task_type", "status", "due_date", "draft_id", "sent_message_id",
       "created_at", "updated_at"
@@ -54,7 +61,9 @@ function createMissingSheets() {
 
   var jobsSheet = ss.getSheetByName("JOBS");
   if (jobsSheet) {
-    applyCheckboxValidation_(jobsSheet, ["DO_RESEARCH", "DO_APPLY", "DO_DRAFT_OUTREACH", "DO_DRAFT_FOLLOWUP"]);
+    applyCheckboxValidation_(jobsSheet, jobActionColumns.map(function(action) {
+      return action.checkbox;
+    }));
   }
 
   ensureDefaultSettings_();
