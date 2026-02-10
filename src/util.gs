@@ -56,6 +56,28 @@ function readRowByMap(sheet, rowIndex) {
   return row;
 }
 
+function readAllRowsByMap_(sheet, limit) {
+  var headerMap = getHeaderMap(sheet);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return [];
+  }
+  var rowCount = lastRow - 1;
+  if (limit && rowCount > limit) {
+    rowCount = limit;
+  }
+  var values = sheet.getRange(2, 1, rowCount, sheet.getLastColumn()).getValues();
+  var rows = [];
+  for (var i = 0; i < values.length; i++) {
+    var row = {};
+    Object.keys(headerMap).forEach(function(key) {
+      row[key] = values[i][headerMap[key] - 1];
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
 function findRowById_(sheet, idColumnName, idValue) {
   var headerMap = getHeaderMap(sheet);
   var idCol = headerMap[idColumnName];
@@ -72,9 +94,7 @@ function findRowById_(sheet, idColumnName, idValue) {
 }
 
 function generateId_(prefix) {
-  var ts = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMddHHmmss");
-  var rand = Math.floor(Math.random() * 1000000);
-  return prefix + "_" + ts + "_" + rand;
+  return prefix + "_" + Utilities.getUuid();
 }
 
 function formatDate_(dateObj) {
@@ -115,7 +135,53 @@ function ensureHeaders_(sheet, headers) {
   sheet.getRange(1, lastColumn + 1, 1, missing.length).setValues([missing]);
 }
 
+function normalizeJobUrl_(url) {
+  if (!url) return "";
+  var cleaned = String(url).trim();
+  cleaned = cleaned.replace(/[).,>]+$/, "");
+  cleaned = cleaned.replace(/^<+/, "");
+  cleaned = cleaned.split("#")[0];
+  cleaned = cleaned.split("?")[0];
+  return cleaned;
+}
+
+function buildUrlDedupeKey_(normalizedUrl) {
+  if (!normalizedUrl) return "";
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, normalizedUrl);
+  var hash = bytes.map(function(byte) {
+    var v = (byte + 256) % 256;
+    return ("0" + v.toString(16)).slice(-2);
+  }).join("");
+  return "urlhash_" + hash;
+}
+
+function findJobRowByDedupeKey_(sheet, normalizedUrl) {
+  if (!normalizedUrl) return -1;
+  var headerMap = getHeaderMap(sheet);
+  var dedupeCol = headerMap.dedupe_key;
+  var normalizedCol = headerMap.normalized_url;
+  if ((!dedupeCol && !normalizedCol) || sheet.getLastRow() < 2) {
+    return -1;
+  }
+  var lastRow = sheet.getLastRow() - 1;
+  var data = sheet.getRange(2, 1, lastRow, sheet.getLastColumn()).getValues();
+  var dedupeKey = buildUrlDedupeKey_(normalizedUrl);
+  for (var i = 0; i < data.length; i++) {
+    if (dedupeCol && String(data[i][dedupeCol - 1]) === dedupeKey) {
+      return i + 2;
+    }
+    if (normalizedCol && String(data[i][normalizedCol - 1]) === normalizedUrl) {
+      return i + 2;
+    }
+  }
+  return -1;
+}
+
 function coerceString_(value) {
   if (value === null || value === undefined) return "";
   return String(value);
+}
+
+function isTruthy_(value) {
+  return value === true || value === 1 || String(value || "").toLowerCase() === "true";
 }

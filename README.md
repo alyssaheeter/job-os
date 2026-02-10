@@ -38,6 +38,11 @@ Job Hunt OS is a Google Apps Script project bound to a Google Sheet “Dashboard
     docs.gs
     integrity.gs
     ai.gs
+    intake.gs
+    web/
+      sidebar.html
+      sidebar.css
+      sidebar.js
 ```
 
 ---
@@ -85,7 +90,8 @@ Job Hunt OS is a Google Apps Script project bound to a Google Sheet “Dashboard
 
 7. **Initialize the sheet**
    - In Alyssa’s Sheet, reload.
-   - Use the custom menu **JobOS → Run First‑Time Setup**.
+   - Use the custom menu **JobOS → RUN_ME_FIRST** or **Run First‑Time Setup**.
+   - Open **JobOS → Open Sidebar** to use the URL ingest + dashboard.
 
 8. **Set Script Properties (API key)**
    - In Apps Script: `Project Settings → Script Properties`.
@@ -140,7 +146,8 @@ Job Hunt OS is a Google Apps Script project bound to a Google Sheet “Dashboard
 
 7. **Initialize the sheet**
    - In Mom’s Sheet, reload.
-   - Use the custom menu **JobOS → Run First‑Time Setup**.
+   - Use the custom menu **JobOS → RUN_ME_FIRST** or **Run First‑Time Setup**.
+   - Open **JobOS → Open Sidebar** to use the URL ingest + dashboard.
 
 8. **Set Script Properties (API key)**
    - In Apps Script: `Project Settings → Script Properties`.
@@ -198,6 +205,28 @@ The JOBS sheet now supports **checkbox-driven actions** (no menu clicks). After 
 - Each action is idempotent. If a status is `DONE`, re-checking the box does nothing until you reset the status to `NEW`.
 - Checkboxes auto-clear after processing.
 - Decision Brief output is stored in the **RESEARCH** sheet.
+
+---
+
+## Sidebar Usage (Recommended)
+Open **JobOS → Open Sidebar** to access:
+- **URL ingest** with optional JD paste if the site blocks fetch.
+- **Dashboard KPIs** for total jobs, active jobs, needs review, and open tasks.
+- **Priority tasks** and **needs review** job list.
+- **Recent logs** for quick debugging.
+
+---
+
+## Troubleshooting
+**Sidebar shows missing settings**
+- Confirm required keys exist in **SETTINGS** and re-run **RUN_ME_FIRST** if headers are missing.
+
+**AI extraction fails**
+- Ensure Script Property `AI_API_KEY` is set and `AI_ENABLED` is `true`.
+- Confirm `AI_MODEL` is set to a valid model name.
+
+**URL ingest requires review**
+- Paste the job description into the optional text field if the site blocks fetch.
 
 ---
 
