@@ -18,8 +18,9 @@ function reconcileSentMail() {
       }
       var messages = thread.getMessages();
       messages.forEach(function(message) {
-        var body = message.getBody();
-        var tokens = parseTrackingToken_(body);
+        var body = message.getBody() || "";
+        var plainBody = message.getPlainBody() || "";
+        var tokens = parseTrackingToken_(body) || parseTrackingToken_(plainBody);
         if (!tokens || !tokens.job_id) {
           return;
         }

@@ -30,7 +30,13 @@ function createOutreachDraftForJob(jobId) {
   var body = draft.body + "\n\n";
   var htmlBody = draft.body + "<br><br>" + buildTrackingTokenHtmlComment_(jobId, taskId, "outreach");
   var recipient = job.contact_email || "";
-  var draftObj = GmailApp.createDraft(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
+  var draftId = job.outreach_draft_id || "";
+  var draftObj = null;
+  if (draftId) {
+    draftObj = GmailApp.getDraft(draftId).update(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
+  } else {
+    draftObj = GmailApp.createDraft(recipient || "", draft.subject || "", body, { htmlBody: htmlBody });
+  }
 
   updateTaskDraft_(taskId, draftObj.getId());
   logEvent("INFO", "draft_outreach", jobId, taskId, { draftId: draftObj.getId() });
@@ -149,4 +155,20 @@ function findLatestTaskRowForJob_(taskSheet, jobId, taskType) {
     }
   }
   return -1;
+}
+
+function getTasksByFilters_(filters) {
+  var sheet = getSheetOrThrow_("TASKS");
+  var rows = readAllRowsByMap_(sheet, 500);
+  var status = filters && filters.status ? String(filters.status).toLowerCase() : "";
+  var jobId = filters && filters.job_id ? String(filters.job_id) : "";
+  return rows.filter(function(row) {
+    if (status && String(row.status || "").toLowerCase() !== status) {
+      return false;
+    }
+    if (jobId && String(row.job_id || "") !== jobId) {
+      return false;
+    }
+    return true;
+  });
 }
