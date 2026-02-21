@@ -1,0 +1,410 @@
+[
+    {
+        "fact_id": "f_profile_01",
+        "categories": [
+            "Profile",
+            "Leadership"
+        ],
+        "text": "Versatile technical project manager with a proven track record in deploying innovative cloud solutions and leveraging AI technologies to drive business transformation and growth.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_profile_02",
+        "categories": [
+            "Profile",
+            "Product Management"
+        ],
+        "text": "Customer-focused Senior Product Manager with over 5 years of experience leading product development from concept to implementation, cross-team strategies, and utilizing data to create compelling product visions.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_consulting_01",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "AI/Automation"
+        ],
+        "text": "Launched and managed a consultancy from February 2024 to Present providing AI solutions to small and mid-sized law firms.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_consulting_02",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "AI/Automation",
+            "Metrics"
+        ],
+        "text": "Designed automated document-management and case-tracking systems for law firms, delivering a 40% reduction in manual work and improving productivity.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_consulting_03",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "Training"
+        ],
+        "text": "Provided training sessions for law firm staff on newly automated systems to ensure smooth transitions and effective utilization.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_consulting_04",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "Sales",
+            "Business Development"
+        ],
+        "text": "Built and managed a sales pipeline handling end-to-end sales processes and closed multiple SMB deals in the legal tech sector.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_consulting_05",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "Legal Operations",
+            "Clio"
+        ],
+        "text": "Implemented Clio-based workflows and mapped complex client workflows to build customized AI and automation systems, significantly enhancing firm performance and reducing operational errors.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_consulting_06",
+        "categories": [
+            "Experience",
+            "Independent Consultancy",
+            "Real Estate Support"
+        ],
+        "text": "Managed differentiated workflow systems for real estate transactions (buyer/seller), requested title documents, drafted affidavits for title clearance, managed HOA document procurement, and maintained professional communications with clients/third parties.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_ahead_01",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Technical Leadership",
+            "Project Management"
+        ],
+        "text": "Served as Client Solution Architect at AHEAD from February 2022 to January 2024.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_02",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Technical Leadership",
+            "Metrics"
+        ],
+        "text": "Championed a critical server initiative securing the primary vendor position for a top-tier airline client, resulting in a $10M contract.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_03",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Infrastructure",
+            "Metrics"
+        ],
+        "text": "Spearheaded data-center modernization and server optimization projects, increasing infrastructure reliability by 30% through design optimizations.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_04",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "AI Infrastructure",
+            "Metrics"
+        ],
+        "text": "Led the design and deployment of server configurations optimized for AI applications, enhancing performance by 40% for a major airline.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_05",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Team Leadership",
+            "Cloud Services",
+            "Metrics"
+        ],
+        "text": "Managed a team of 20+ engineers in the rollout of a comprehensive cloud services suite, delivering on schedule and improving reliability by 30%.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_06",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Enterprise Consulting",
+            "Metrics"
+        ],
+        "text": "Led technology engagements for Fortune 500 companies, translating complex solutions into business cases, crafting advanced infrastructure strategies that enhanced client operations and expanded market share by 15%.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_ahead_07",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Sales",
+            "Metrics"
+        ],
+        "text": "Secured competitive victories in storage solutions, increasing market share by 20% through strategic positioning.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_ahead_08",
+        "categories": [
+            "Experience",
+            "AHEAD",
+            "Training",
+            "Metrics"
+        ],
+        "text": "Achieved a 15% increase in solution uptake through targeted training and integration strategies, and enriched the solutions portfolio leading to a 25% improvement in client satisfaction.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_select_01",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Sales",
+            "Account Growth"
+        ],
+        "text": "Served as Client Solution Executive for AT&T Select Markets in Chicago from September 2020 to January 2023.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_select_02",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Sales",
+            "Metrics"
+        ],
+        "text": "Ranked as a Top 10 Sales Associate in the Central Market in 2021, driving a 20% increase in network solutions sales.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_select_03",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Account Growth",
+            "Metrics"
+        ],
+        "text": "Managed and grew a portfolio of 200+ business accounts, securing multi-year enterprise contracts exceeding $2M.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_select_04",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Sales",
+            "Metrics"
+        ],
+        "text": "Increased upsell revenue by 25% and customer retention by 20% with tailored strategic solutions.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_select_05",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Client Service",
+            "Metrics"
+        ],
+        "text": "Directed the design and implementation of tailored network solutions that enhanced customer operations, resulting in a 95% satisfaction rate.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_select_06",
+        "categories": [
+            "Experience",
+            "AT&T Select Markets",
+            "Sales Pipeline",
+            "Metrics"
+        ],
+        "text": "Coordinated internal and external cross-functional teams to design end-to-end network solutions, maintaining a sales pipeline of 50+ active deals and achieving a 30% increase in deal closures.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_smb_01",
+        "categories": [
+            "Experience",
+            "AT&T Small Business",
+            "Sales"
+        ],
+        "text": "Served as Sales Executive for AT&T Small Business in Chicago from July 2018 to August 2020.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_smb_02",
+        "categories": [
+            "Experience",
+            "AT&T Small Business",
+            "Sales Targets",
+            "Metrics"
+        ],
+        "text": "Exceeded sales targets by over 100% YTD in 2018 and 2019, driving $5M in revenue growth and increasing SMB revenue in Chicago by 10%.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_smb_03",
+        "categories": [
+            "Experience",
+            "AT&T Small Business",
+            "Mentorship",
+            "Metrics"
+        ],
+        "text": "Initiated and led a training program for new hires that improved team performance and sales metrics by 25% within the first year.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_b2b_01",
+        "categories": [
+            "Experience",
+            "AT&T B2B",
+            "Sales"
+        ],
+        "text": "Served as B2B Sales Development Representative for AT&T in Dallas from March 2018 to July 2018, specializing in consultative selling and developing customized network solutions.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_strategic_01",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Strategic Account Management",
+            "C-Suite"
+        ],
+        "text": "Directed strategic account planning and complex sales cycles for Global Fortune 500, Mid-Market, and Public Sector clients, conducting high-level C-suite presentations.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": true
+    },
+    {
+        "fact_id": "f_att_strategic_02",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Governance",
+            "Client Retention"
+        ],
+        "text": "Functioned as primary single point of contact for enterprise clients, managing long-term loyalty and orchestrating data-driven Executive Business Reviews (EBRs) utilizing CSAT/NPS scores.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_strategic_03",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Pipeline Governance"
+        ],
+        "text": "Managed high-value sales funnels within Salesforce B2B, maintaining stage governance from lead qualification (BANT framework) to final contract execution via CPQ tools (Apttus/Conga).",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_tech_01",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Integrated Solutions",
+            "Networking"
+        ],
+        "text": "Engineered software-defined networking solutions including AT&T Dedicated Internet (ADI), Switched Ethernet on Demand (ASEoD), and SD-WAN (VeloCloud/Cisco).",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_tech_02",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Integrated Solutions",
+            "UCaaS"
+        ],
+        "text": "Architected mobile-first collaboration environments using RingCentral, AT&T Collaborate, and Cloud Voice for Microsoft Teams.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_tech_03",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Integrated Solutions",
+            "Cybersecurity"
+        ],
+        "text": "Implemented network-embedded security strategies, including Managed SASE and Managed Trusted Internet Protocol Service (MTIPS) for federal compliance.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_att_tech_04",
+        "categories": [
+            "Experience",
+            "AT&T",
+            "Integrated Solutions",
+            "Cloud & Data Center"
+        ],
+        "text": "Facilitated hybrid-cloud migrations via AT&T NetBond for Cloud (private peering with AWS/Azure/Salesforce) and globally distributed Colocation Services.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_education_01",
+        "categories": [
+            "Education",
+            "Indiana University"
+        ],
+        "text": "Bachelor of Science in Business, Supply Chain Management from Indiana University Kelley School of Business (August 2014 – April 2017). Presidential Scholar Distinction.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    },
+    {
+        "fact_id": "f_achievements_01",
+        "categories": [
+            "Achievements",
+            "Philanthropy",
+            "Metrics"
+        ],
+        "text": "Raised $4.15M for Riley Hospital for Children in 2017. Served as Culture Chair of Recruitment Committee for Indiana University Dance Marathon.",
+        "allowed_for_resume": true,
+        "allowed_for_coverletter": false
+    }
+]

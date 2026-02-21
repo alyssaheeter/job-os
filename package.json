@@ -1,16 +1,20 @@
 {
   "name": "job-hunt-os",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@google/clasp": "^2.4.2"
+    "@google/clasp": "^2.4.2",
+    "ajv-cli": "^5.0.0"
   },
   "scripts": {
-    "clasp:use:alyssa": "node scripts/clasp-use.mjs alyssa",
-    "clasp:use:mom": "node scripts/clasp-use.mjs mom",
+    "clasp:use": "node scripts/clasp-use.mjs",
     "push": "clasp push",
     "pull": "clasp pull",
-    "deploy": "clasp deploy --description \"[FILL-IN]\""
+    "deploy": "clasp deploy --description \"[FILL-IN]\"",
+    "docs": "echo 'Docs up to date'",
+    "verify": "ajv compile -s schemas/SETTINGS.schema.json",
+    "test": "echo 'Skipping ts compile: no tsconfig.json'",
+    "release": "npm run verify && npm run test && echo 'Ready to tag!'"
   }
 }

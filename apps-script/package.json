@@ -1,0 +1,20 @@
+{
+    "name": "job-hunt-os-apps-script",
+    "version": "1.1.0",
+    "description": "Job Hunt OS Backend",
+    "main": "index.js",
+    "scripts": {
+        "deploy": "clasp push",
+        "pull": "clasp pull",
+        "docs": "node ../.agent/workflows/run-workflow.js docs",
+        "verify": "node ../.agent/workflows/run-workflow.js verify",
+        "test": "node ../.agent/workflows/run-workflow.js test",
+        "release": "node ../.agent/workflows/run-workflow.js release"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@google/clasp": "^2.4.2",
+        "@types/google-apps-script": "^1.0.83",
+        "typescript": "^5.3.3"
+    }
+}

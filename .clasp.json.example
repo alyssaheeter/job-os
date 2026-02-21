@@ -1,0 +1,8 @@
+/**
+ * Example clasp configuration.
+ * Copy to .clasp.json and fill in the scriptId.
+ */
+{
+  "scriptId": "YOUR_SCRIPT_ID_HERE",
+  "rootDir": "src"
+}
