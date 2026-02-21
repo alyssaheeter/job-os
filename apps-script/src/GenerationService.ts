@@ -15,9 +15,6 @@ class GenerationService {
         roleFolderId: string
     ) {
         try {
-            const resumeFacts = FactsService.getAllowedFacts('resume');
-            const coverLetterFacts = FactsService.getAllowedFacts('coverletter');
-
             // Navigate sub-folders based on scaffolds from DriveScaffoldService
             const parentFolder = DriveApp.getFolderById(roleFolderId);
 
@@ -27,9 +24,35 @@ class GenerationService {
             let outreachFolderId = this.findOrFallback(parentFolder, "04_Outreach_Drafts", roleFolderId);
 
             // --- RESUME ---
-            // Stub generation: Will be fully connected to LLM when Option is chosen
-            const resumeDraftText = `DRAFT RESUME FOR ${company}\n\n[MISSING FACT] - Awaiting LLM connection for fact-only mapping.`;
-            const resumeUrl = DocumentService.createDraftDocument(resumeFolderId, `${company} - ${role} Resume Draft`, resumeDraftText);
+            const templateId = Config.get("RESUME_TEMPLATE_ID");
+            let resumeUrl = "";
+            let resumeTitle = `${company} - ${role} Tailored Resume`;
+
+            if (templateId && templateId.length > 5) {
+                // Build dynamic resume substitutions deterministically using ALYSSA_FACTS!
+                const tokens: Record<string, string> = {};
+                tokens["PRO_SUMMARY"] = FactsService.buildProSummary(requirements);
+                tokens["SKILLS"] = FactsService.buildSkillsString();
+
+                const roles = [
+                    { key: "INDEPENDENT_CONSULTANCY", prefix: "INDEPENDENT_CONSULTANCY_BULLET_" },
+                    { key: "AHEAD", prefix: "AHEAD_BULLET_" },
+                    { key: "ATT_CSE", prefix: "ATT_CSE_BULLET_" },
+                    { key: "ATT_B2B_SDR", prefix: "ATT_B2B_BULLET_" }
+                ];
+
+                for (const r of roles) {
+                    const bullets = FactsService.rankFactsByRelevance(r.key, requirements, 5);
+                    for (let i = 0; i < 5; i++) {
+                        tokens[`${r.prefix}${i + 1}`] = bullets[i] || "";
+                    }
+                }
+
+                resumeUrl = DocumentService.createFromTemplate(resumeFolderId, resumeTitle, templateId, tokens);
+            } else {
+                const resumeDraftText = `DRAFT RESUME FOR ${company}\n\n[MISSING FACT] - No Template ID Configured.`;
+                resumeUrl = DocumentService.createDraftDocument(resumeFolderId, resumeTitle, resumeDraftText);
+            }
             SheetsService.appendRow("ARTIFACTS", [opportunityId, "Resume", resumeUrl, new Date()]);
 
             // --- COVER LETTER ---

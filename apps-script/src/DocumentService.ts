@@ -8,22 +8,37 @@ class DocumentService {
     static createDraftDocument(parentFolderId: string, title: string, bodyText: string): string {
         const doc = DocumentApp.create(title);
         doc.getBody().setText(bodyText);
-        const fileId = doc.getId();
+        return this.moveFile(doc.getId(), parentFolderId);
+    }
 
-        // Move to the target Drive folder from the root
+    /**
+     * Copies a Template Google Doc, runs text replacements, and moves it to the appropiate Drive folder.
+     */
+    static createFromTemplate(parentFolderId: string, title: string, templateId: string, tokens: Record<string, string>): string {
+        const templateFile = DriveApp.getFileById(templateId);
+        const newFile = templateFile.makeCopy(title);
+
+        const doc = DocumentApp.openById(newFile.getId());
+        const body = doc.getBody();
+
+        for (const [key, value] of Object.entries(tokens)) {
+            body.replaceText(`\\{\\{${key}\\}\\}`, value);
+        }
+
+        doc.saveAndClose();
+        return this.moveFile(newFile.getId(), parentFolderId);
+    }
+
+    private static moveFile(fileId: string, parentFolderId: string): string {
         const file = DriveApp.getFileById(fileId);
-
         try {
-            // In newer Apps Script Drive API versions, moveTo() is standard
             const targetFolder = DriveApp.getFolderById(parentFolderId);
             file.moveTo(targetFolder);
         } catch (e) {
-            // Fallback for older V8 runtime syntax
             const targetFolder = DriveApp.getFolderById(parentFolderId);
             targetFolder.addFile(file);
             DriveApp.getRootFolder().removeFile(file);
         }
-
-        return doc.getUrl();
+        return file.getUrl();
     }
 }
