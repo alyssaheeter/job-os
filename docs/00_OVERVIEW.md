@@ -18,3 +18,21 @@ Job Hunt OS is an automated, high-leverage job search management system. It live
 
 5. **Idempotency**
    State management uses unique identifier keys (`job_id`, `dedupe_key`) preventing duplicate creation of jobs, tasks, or drafts when a script is re-run or an action box is repeatedly checked.
+
+## Strategic Roadmap
+
+### Phase 1: MVP (Send Resumes Today)
+The immediate goal is executing applications quickly. The current system provides:
+- **Offline Fact Repository**: Uses `data/facts/alyssa_facts.json` combined with Google Docs Template substitution.
+- **Deterministic Generation**: No hallucination. Bullet points are ranked by overlap with JD keywords and directly injected into the template.
+- **Manual Actions Required**: 
+  - Deploy script (`clasp push`).
+  - Feed Job Title/Requirements into the Dashboard.
+  - Review the generated Google Doc and download as PDF.
+
+### Phase 2: Fully-Automated Job OS (Future)
+The long-term vision converts this into a true operating system:
+- **Omni-channel Ingestion**: Save jobs directly via a Chrome Bookmarklet or parsed email.
+- **Deep ATS Parsing**: Extract semantic skills from external pages automatically via LLMs.
+- **Automated Drafting**: Cover letters and initial outreach templates generated concurrently.
+- **Inbox Interception**: Monitor responses, categorize them (Reject, Assessment, Interview), and auto-draft replies right into your Gmail Drafts folder.
