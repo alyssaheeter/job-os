@@ -19,7 +19,7 @@ function onOpen() {
  * Evaluates and opens the Sidebar HTML.
  */
 function showSidebar() {
-    const html = HtmlService.createHtmlOutputFromFile('Sidebar')
+    const html = HtmlService.createHtmlOutputFromFile('IngestionSidebar')
         .setTitle('Job Hunt OS')
         .setWidth(300);
     SpreadsheetApp.getUi().showSidebar(html);
