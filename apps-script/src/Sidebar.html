@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .loader {
+            border-top-color: #3B82F6;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 font-sans text-gray-800 text-sm">
+
+    <div class="mb-6 border-b pb-2">
+        <h2 class="text-xl font-bold tracking-tight text-blue-600">JobOS Ingestion</h2>
+        <p class="text-xs text-gray-500 mt-1">Paste a job description to instantly generate your tailored resume and Google Drive folders.</p>
+    </div>
+
+    <form id="jobForm" onsubmit="submitForm(event)" class="space-y-4">
+        
+        <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Company Name *</label>
+            <input type="text" id="company" name="company" required
+                class="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm text-sm"
+                placeholder="e.g. Acme Corp">
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Role Title *</label>
+            <input type="text" id="role" name="role" required
+                class="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm text-sm"
+                placeholder="e.g. Solutions Architect">
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Job Description / Requirements *</label>
+            <textarea id="requirements" name="requirements" rows="6" required
+                class="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm text-sm"
+                placeholder="Paste the bullet points or full job description here..."></textarea>
+            <p class="text-[10px] text-gray-400 mt-1 leading-tight">We use this context to semantically select your best matching achievements.</p>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Job URL (Optional)</label>
+            <input type="url" id="url" name="url"
+                class="w-full px-3 py-2 border rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm text-sm"
+                placeholder="https://...">
+        </div>
+
+        <button type="submit" id="submitBtn"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-150 flex items-center justify-center">
+            <span>Process & Generate Resume</span>
+        </button>
+    </form>
+
+    <div id="loadingState" class="hidden flex-col items-center justify-center space-y-3 mt-6">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+        <p class="text-xs font-medium text-gray-600 animate-pulse text-center">Running MVP generation engine...<br/>This takes ~15 seconds.</p>
+    </div>
+
+    <div id="successState" class="hidden mt-6 bg-green-50 border-l-4 border-green-400 p-4">
+        <div class="flex">
+            <div class="ml-3">
+                <p class="text-sm text-green-700 font-semibold" id="successMessage">Successfully processed!</p>
+                <p class="text-xs text-green-600 mt-1 cursor-pointer underline" onclick="resetForm()">Process another job</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorState" class="hidden mt-6 bg-red-50 border-l-4 border-red-400 p-4">
+        <div class="flex">
+            <div class="ml-3">
+                <p class="text-sm text-red-700 font-semibold">Error processing job</p>
+                <p class="text-xs text-red-600 mt-1" id="errorMessage"></p>
+                <p class="text-xs text-red-600 mt-2 cursor-pointer underline font-semibold" onclick="resetForm()">Try again</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            
+            // Toggle UI states
+            document.getElementById('jobForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden');
+
+            const formData = {
+                company: document.getElementById('company').value.trim(),
+                role: document.getElementById('role').value.trim(),
+                requirements: document.getElementById('requirements').value.trim(),
+                url: document.getElementById('url').value.trim()
+            };
+
+            // Call Apps Script server function
+            google.script.run
+                .withSuccessHandler(onSuccess)
+                .withFailureHandler(onFailure)
+                .processManualJob(formData);
+        }
+
+        function onSuccess(response) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.remove('hidden');
+            
+            const msg = document.getElementById('successMessage');
+            if(response && response.message) {
+                msg.innerText = response.message;
+            } else {
+                msg.innerText = "Job processed & resume generated! Check the Master Sheet.";
+            }
+        }
+
+        function onFailure(error) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorMessage').innerText = error.message || "An unknown error occurred.";
+        }
+
+        function resetForm() {
+            document.getElementById('jobForm').reset();
+            document.getElementById('jobForm').classList.remove('hidden');
+            document.getElementById('successState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            
+            // Optional: Auto-fill clearing usually handled by reset()
+        }
+    </script>
+</body>
+</html>

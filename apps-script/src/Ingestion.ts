@@ -66,4 +66,68 @@ class IngestionService {
             LoggerService.logError("Ingestion", "ERROR", `Critical failure processing URL: ${url}`, e.stack, correlationId);
         }
     }
+
+    /**
+     * Entry point for manual ingestion via the UI Sidebar (MVP Workflow)
+     */
+    static processManualJobInput(data: { company: string, role: string, requirements: string, url: string }) {
+        const correlationId = Utils.generateCorrelationId();
+        try {
+            // Split requirements block into tokens
+            const reqArray = data.requirements
+                .split(/\n-|\n•|\n\*/) // Split on common bullet types
+                .map(s => s.trim())
+                .filter(s => s.length > 5);
+
+            // If they didn't parse out as bullets, just fake an array of chunks
+            const finalReqs = reqArray.length > 0 ? reqArray : [data.requirements];
+
+            // Generate Dedupe Key
+            const dedupeKey = Utils.generateDedupeKey(data.company, data.role, "Remote/Unknown", data.url || "manual-entry");
+
+            // Calculate Score
+            const { score, matchedKeywords } = ScoringService.calculateQualificationScore(finalReqs);
+
+            const opportunityId = Utils.generateCorrelationId();
+
+            // Build and Upsert Record
+            const opportunityData = {
+                opportunity_id: opportunityId,
+                dedupe_key: dedupeKey,
+                company: data.company,
+                role: data.role,
+                location: "Manual Entry",
+                posting_url: data.url || "",
+                status: "New",
+                match_score: score,
+                matched_keywords: matchedKeywords.join(", ")
+            };
+
+            SheetsService.upsertOpportunity(dedupeKey, opportunityData);
+
+            // Scaffold Drive Folders
+            const systemFolderId = Config.get("SYSTEM_FOLDER_ID");
+            let roleFolderId = "";
+            if (systemFolderId) {
+                const folders = DriveScaffoldService.createOpportunityFolders(systemFolderId, opportunityData.company, opportunityData.role);
+                roleFolderId = folders.roleFolderId;
+            }
+
+            // Trigger Real Resume Generation
+            GenerationService.triggerGenerationPipeline(
+                correlationId,
+                opportunityId,
+                data.company,
+                data.role,
+                finalReqs,
+                roleFolderId
+            );
+
+            return { success: true, message: `Processed ${data.company} and generated Document Drafts.` };
+
+        } catch (e: any) {
+            LoggerService.logError("Ingestion", "ERROR", `Failed Manual Ingestion for ${data.company}`, e.stack, correlationId);
+            throw new Error(`Failed to process job: ${e.message}`);
+        }
+    }
 }
