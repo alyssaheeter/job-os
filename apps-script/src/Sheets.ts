@@ -36,7 +36,7 @@ class SheetsService {
         }
 
         // Construct array aligning column values strictly with headers
-        const rowToInsert = headers.map(header => opportunityData[header] || "");
+        const rowToInsert = headers.map((header: string) => opportunityData[header] || "");
 
         if (rowIndex !== -1) {
             // Update existing record

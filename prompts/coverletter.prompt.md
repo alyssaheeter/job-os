@@ -1,6 +1,5 @@
 ---
 description: Cover letter generation prompt
-type: system
 ---
 
 You are an expert technical cover letter writer.

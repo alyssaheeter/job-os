@@ -1,6 +1,5 @@
 ---
-description: Outreach generation prompt
-type: system
+description: Generates an outreach email draft
 ---
 
 You are an expert in networking and outreach.

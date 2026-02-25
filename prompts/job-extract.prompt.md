@@ -1,6 +1,5 @@
 ---
-description: Job description extraction prompt
-type: system
+description: Extracts details from an unstructured JD
 ---
 
 You are an expert recruiter and structured data extractor.

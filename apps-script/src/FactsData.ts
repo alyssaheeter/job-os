@@ -1,4 +1,4 @@
-export const ALYSSA_FACTS = {
+const ALYSSA_FACTS = {
     "schema_version": "resume_input_v3_template_dates_only",
     "template_dates": {
         "EDUCATION": { "start": "January 2013", "end": "December 2017" },

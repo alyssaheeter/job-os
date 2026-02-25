@@ -3,17 +3,17 @@
  */
 class FactsService {
     /**
-     * Loads facts allowed for a specific context (e.g. 'resume' or 'coverletter').
+     * Loads facts allowed for a specific context (e.g. 'resume' or 'cover_letter').
      */
-    static getAllowedFacts(context: 'resume' | 'coverletter'): any[] {
-        return ALYSSA_FACTS.facts_repo.filter(fact => fact.allowed[context]);
+    static getAllowedFacts(context: 'resume' | 'cover_letter' | 'outreach'): any[] {
+        return ALYSSA_FACTS.facts_repo.filter((fact: any) => fact.allowed[context]);
     }
 
     /**
      * Ranks facts based on overlap with Job Description requirements.
      */
     static rankFactsByRelevance(roleKey: string, requirements: string[], requiredCount: number): string[] {
-        const role = ALYSSA_FACTS.roles.find(r => r.role_key === roleKey);
+        const role = ALYSSA_FACTS.roles.find((r: any) => r.role_key === roleKey);
         if (!role) return [];
 
         const allowedFacts = this.getAllowedFacts('resume').filter(f => role.allowed_fact_ids.includes(f.fact_id));

@@ -1,6 +1,5 @@
 ---
-description: Resume bullet generation prompt
-type: system
+description: Generates a tailored resume
 ---
 
 You are an expert technical resume writer.

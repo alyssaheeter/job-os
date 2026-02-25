@@ -54,7 +54,7 @@ class IngestionService {
             SheetsService.upsertOpportunity(dedupeKey, opportunityData);
 
             // 6. Scaffold Drive Folders
-            const systemFolderId = ConfigService.get("SYSTEM_FOLDER_ID"); // the /JobHunt_OS root folder ID
+            const systemFolderId = Config.get("SYSTEM_FOLDER_ID"); // the /JobHunt_OS root folder ID
             if (systemFolderId) {
                 DriveScaffoldService.createOpportunityFolders(systemFolderId, opportunityData.company, opportunityData.role);
             }
