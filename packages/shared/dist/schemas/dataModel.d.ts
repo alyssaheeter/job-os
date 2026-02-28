@@ -631,3 +631,107 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     output_tokens?: number | undefined;
 }>;
 export type PromptRunLog = z.infer<typeof PromptRunLogSchema>;
+export declare const ApplicationSchema: z.ZodObject<{
+    applicationId: z.ZodString;
+    jobId: z.ZodString;
+    tenantId: z.ZodString;
+    status: z.ZodEnum<["DRAFTED", "SUBMITTED", "REJECTED", "INTERVIEWING", "OFFER", "CLOSED"]>;
+    generation_logs: z.ZodArray<z.ZodObject<{
+        bullet_text: z.ZodString;
+        source_fact_id: z.ZodString;
+        jd_keyword_matched: z.ZodOptional<z.ZodString>;
+        cluster_name: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        bullet_text: string;
+        source_fact_id: string;
+        jd_keyword_matched?: string | undefined;
+        cluster_name?: string | undefined;
+    }, {
+        bullet_text: string;
+        source_fact_id: string;
+        jd_keyword_matched?: string | undefined;
+        cluster_name?: string | undefined;
+    }>, "many">;
+    assets: z.ZodObject<{
+        resume_gcs_uri: z.ZodString;
+        cover_letter_gcs_uri: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        resume_gcs_uri: string;
+        cover_letter_gcs_uri?: string | undefined;
+    }, {
+        resume_gcs_uri: string;
+        cover_letter_gcs_uri?: string | undefined;
+    }>;
+    comms_sequence: z.ZodArray<z.ZodObject<{
+        day: z.ZodNumber;
+        draft_id: z.ZodString;
+        status: z.ZodEnum<["PENDING", "SENT"]>;
+    }, "strip", z.ZodTypeAny, {
+        status: "PENDING" | "SENT";
+        day: number;
+        draft_id: string;
+    }, {
+        status: "PENDING" | "SENT";
+        day: number;
+        draft_id: string;
+    }>, "many">;
+    timestamps: z.ZodObject<{
+        created_at: z.ZodString;
+        updated_at: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        updated_at: string;
+        created_at: string;
+    }, {
+        updated_at: string;
+        created_at: string;
+    }>;
+}, "strip", z.ZodTypeAny, {
+    status: "DRAFTED" | "SUBMITTED" | "REJECTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
+    jobId: string;
+    tenantId: string;
+    timestamps: {
+        updated_at: string;
+        created_at: string;
+    };
+    applicationId: string;
+    generation_logs: {
+        bullet_text: string;
+        source_fact_id: string;
+        jd_keyword_matched?: string | undefined;
+        cluster_name?: string | undefined;
+    }[];
+    assets: {
+        resume_gcs_uri: string;
+        cover_letter_gcs_uri?: string | undefined;
+    };
+    comms_sequence: {
+        status: "PENDING" | "SENT";
+        day: number;
+        draft_id: string;
+    }[];
+}, {
+    status: "DRAFTED" | "SUBMITTED" | "REJECTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
+    jobId: string;
+    tenantId: string;
+    timestamps: {
+        updated_at: string;
+        created_at: string;
+    };
+    applicationId: string;
+    generation_logs: {
+        bullet_text: string;
+        source_fact_id: string;
+        jd_keyword_matched?: string | undefined;
+        cluster_name?: string | undefined;
+    }[];
+    assets: {
+        resume_gcs_uri: string;
+        cover_letter_gcs_uri?: string | undefined;
+    };
+    comms_sequence: {
+        status: "PENDING" | "SENT";
+        day: number;
+        draft_id: string;
+    }[];
+}>;
+export type Application = z.infer<typeof ApplicationSchema>;

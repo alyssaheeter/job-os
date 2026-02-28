@@ -158,3 +158,31 @@ export const PromptRunLogSchema = z.object({
 });
 
 export type PromptRunLog = z.infer<typeof PromptRunLogSchema>;
+
+export const ApplicationSchema = z.object({
+    applicationId: z.string(),
+    jobId: z.string(),
+    tenantId: z.string(),
+    status: z.enum(['DRAFTED', 'SUBMITTED', 'REJECTED', 'INTERVIEWING', 'OFFER', 'CLOSED']),
+    generation_logs: z.array(z.object({
+        bullet_text: z.string(),
+        source_fact_id: z.string(),
+        jd_keyword_matched: z.string().optional(),
+        cluster_name: z.string().optional()
+    })),
+    assets: z.object({
+        resume_gcs_uri: z.string(),
+        cover_letter_gcs_uri: z.string().optional()
+    }),
+    comms_sequence: z.array(z.object({
+        day: z.number(),
+        draft_id: z.string(),
+        status: z.enum(['PENDING', 'SENT'])
+    })),
+    timestamps: z.object({
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+});
+
+export type Application = z.infer<typeof ApplicationSchema>;
