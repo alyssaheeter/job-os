@@ -17,6 +17,7 @@ export type FactEntry = z.infer<typeof FactEntrySchema>;
 export const JobSchema = z.object({
     jobId: z.string(),
     tenantId: z.string(),
+    status: z.enum(['INGESTED', 'PREPROCESSED', 'NORMALIZED', 'DISQUALIFIED', 'EVALUATED', 'REJECTED', 'APPROVED', 'GENERATED', 'RENDERED', 'DRAFTED', 'ERROR']).default('INGESTED'),
     source: z.object({
         channel: z.string(),
         url: z.string().optional(),
@@ -154,10 +155,15 @@ export const PromptRunLogSchema = z.object({
     cache_id: z.string().optional(),
     cache_hit: z.boolean().default(false),
     input_tokens: z.number().optional(),
-    output_tokens: z.number().optional()
+    output_tokens: z.number().optional(),
+    latency_ms: z.number().optional(),
+    cost_estimate: z.number().optional(),
+    prompt_version: z.string().optional(),
+    schema_version: z.string().optional()
 });
 
 export type PromptRunLog = z.infer<typeof PromptRunLogSchema>;
+
 
 export const ApplicationSchema = z.object({
     applicationId: z.string(),

@@ -75,7 +75,8 @@ async function runGoldenDataset() {
 
             // 5. Agent Suki OMST Generation
             console.log("5. Invoking Agent Suki with Normalized Output and Facts...");
-            const payload = await invokeAgentSuki(JSON.stringify(normalizedData), MOCK_FACTS);
+            const sukiResult = await invokeAgentSuki(JSON.stringify(normalizedData), MOCK_FACTS);
+            const payload = sukiResult.payload;
 
             console.log("6. Validating Suki Payload Schema and Constraints...");
             AgentSukiPayloadSchema.parse(payload);

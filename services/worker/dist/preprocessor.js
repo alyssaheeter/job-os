@@ -1,11 +1,13 @@
 export function preprocessJD(rawText) {
     const rawLower = rawText.toLowerCase();
-    // 1. Zero-Token Early Exits
+    // 1. Zero-Token Early Exits (V3 Hardening)
     const fatalKeywords = [
         'ts/sci',
         'security clearance required',
         '100% onsite',
-        'must relocate'
+        'must be onsite 5 days',
+        'must relocate',
+        'weekly travel'
     ];
     for (const kw of fatalKeywords) {
         if (rawLower.includes(kw)) {
@@ -13,7 +15,7 @@ export function preprocessJD(rawText) {
                 cleaned_jd_text: rawText,
                 removed_sections: [],
                 removed_char_count: 0,
-                early_disqualification: `Fatal constraint detected before Vertex invocation: '${kw}'`
+                early_disqualification: `V3 Fatal Preprocessor Exit: '${kw}' detected`
             };
         }
     }
@@ -23,8 +25,11 @@ export function preprocessJD(rawText) {
     const boilerplatePatterns = [
         /equal opportunity employer.*$/gims,
         /eeo.*$/gims,
+        /benefits include.*$/gims,
+        /401k matching.*$/gims,
+        /vision and dental.*$/gims,
+        /dental\/vision.*$/gims,
         /401k.*$/gims,
-        /vision\/dental.*$/gims,
         /privacy policy.*$/gims,
         /benefits package.*$/gims
     ];

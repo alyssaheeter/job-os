@@ -5,4 +5,7 @@ export declare function invokeEvaluatorAgent(normalizedJobJson: string): Promise
 /**
  * Invoke Agent Suki using optionally cached context for the Facts.
  */
-export declare function invokeAgentSuki(jdText: string, factsData: any): Promise<AgentSukiPayload>;
+export declare function invokeAgentSuki(jdText: string, factsData: any): Promise<{
+    payload: AgentSukiPayload;
+    tokens: any;
+}>;

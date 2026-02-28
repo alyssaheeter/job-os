@@ -37,6 +37,7 @@ export type FactEntry = z.infer<typeof FactEntrySchema>;
 export declare const JobSchema: z.ZodObject<{
     jobId: z.ZodString;
     tenantId: z.ZodString;
+    status: z.ZodDefault<z.ZodEnum<["INGESTED", "PREPROCESSED", "NORMALIZED", "DISQUALIFIED", "EVALUATED", "REJECTED", "APPROVED", "GENERATED", "RENDERED", "DRAFTED", "ERROR"]>>;
     source: z.ZodObject<{
         channel: z.ZodString;
         url: z.ZodOptional<z.ZodString>;
@@ -315,6 +316,7 @@ export declare const JobSchema: z.ZodObject<{
         target_ats_title: string;
         manager_title_hint?: string | undefined;
     };
+    status: "INGESTED" | "PREPROCESSED" | "NORMALIZED" | "DISQUALIFIED" | "EVALUATED" | "REJECTED" | "APPROVED" | "GENERATED" | "RENDERED" | "DRAFTED" | "ERROR";
     jobId: string;
     tenantId: string;
     source: {
@@ -492,6 +494,7 @@ export declare const JobSchema: z.ZodObject<{
         ingested_at: string;
         updated_at: string;
     };
+    status?: "INGESTED" | "PREPROCESSED" | "NORMALIZED" | "DISQUALIFIED" | "EVALUATED" | "REJECTED" | "APPROVED" | "GENERATED" | "RENDERED" | "DRAFTED" | "ERROR" | undefined;
     negotiation_levers?: {
         comp_flexibility_signals: string[];
         urgency_flags: string[];
@@ -599,6 +602,10 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     cache_hit: z.ZodDefault<z.ZodBoolean>;
     input_tokens: z.ZodOptional<z.ZodNumber>;
     output_tokens: z.ZodOptional<z.ZodNumber>;
+    latency_ms: z.ZodOptional<z.ZodNumber>;
+    cost_estimate: z.ZodOptional<z.ZodNumber>;
+    prompt_version: z.ZodOptional<z.ZodString>;
+    schema_version: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     tenantId: string;
     runId: string;
@@ -608,12 +615,16 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     promptType: string;
     schemaViolation: boolean;
     cache_hit: boolean;
+    prompt_version?: string | undefined;
     requestPayload?: any;
     responsePayload?: any;
     error?: string | undefined;
     cache_id?: string | undefined;
     input_tokens?: number | undefined;
     output_tokens?: number | undefined;
+    latency_ms?: number | undefined;
+    cost_estimate?: number | undefined;
+    schema_version?: string | undefined;
 }, {
     tenantId: string;
     runId: string;
@@ -621,6 +632,7 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     timestamp: string;
     model: string;
     promptType: string;
+    prompt_version?: string | undefined;
     requestPayload?: any;
     responsePayload?: any;
     error?: string | undefined;
@@ -629,6 +641,9 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     cache_hit?: boolean | undefined;
     input_tokens?: number | undefined;
     output_tokens?: number | undefined;
+    latency_ms?: number | undefined;
+    cost_estimate?: number | undefined;
+    schema_version?: string | undefined;
 }>;
 export type PromptRunLog = z.infer<typeof PromptRunLogSchema>;
 export declare const ApplicationSchema: z.ZodObject<{
@@ -686,7 +701,7 @@ export declare const ApplicationSchema: z.ZodObject<{
         created_at: string;
     }>;
 }, "strip", z.ZodTypeAny, {
-    status: "DRAFTED" | "SUBMITTED" | "REJECTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
+    status: "REJECTED" | "DRAFTED" | "SUBMITTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
     jobId: string;
     tenantId: string;
     timestamps: {
@@ -710,7 +725,7 @@ export declare const ApplicationSchema: z.ZodObject<{
         draft_id: string;
     }[];
 }, {
-    status: "DRAFTED" | "SUBMITTED" | "REJECTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
+    status: "REJECTED" | "DRAFTED" | "SUBMITTED" | "INTERVIEWING" | "OFFER" | "CLOSED";
     jobId: string;
     tenantId: string;
     timestamps: {

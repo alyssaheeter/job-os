@@ -120,17 +120,26 @@ export async function invokeAgentSuki(jdText, factsData) {
     // the canonical rules and facts together cleanly.
     let cacheHit = false;
     let inputTokens = 0;
+    let tokenUsage = { input: 0, output: 0, latency_ms: 0 };
+    const startTime = Date.now();
     const prompt = generateSukiPrompt(jdText, JSON.stringify(factsData));
     // First Attempt
     try {
-        const res = await callModel(prompt);
-        return AgentSukiPayloadSchema.parse(res);
+        const { result, tokens } = await callModel(prompt);
+        tokenUsage = { ...tokens, latency_ms: Date.now() - startTime };
+        const parsed = AgentSukiPayloadSchema.parse(result);
+        return { payload: parsed, tokens: tokenUsage };
     }
     catch (err) {
         console.warn("First LLM attempt failed schema validation. Retrying...", err);
+        const retryStartTime = Date.now();
         // Second Attempt
-        const res2 = await callModel(prompt + "\\n\\nThe previous attempt failed JSON validation. Ensure valid JSON matching the schema.");
-        return AgentSukiPayloadSchema.parse(res2); // Hard fail if second attempt breaks
+        const { result, tokens } = await callModel(prompt + "\\n\\nThe previous attempt failed JSON validation. Ensure valid JSON matching the schema.");
+        tokenUsage.input += tokens.input;
+        tokenUsage.output += tokens.output;
+        tokenUsage.latency_ms += (Date.now() - retryStartTime);
+        const parsed = AgentSukiPayloadSchema.parse(result); // Hard fail if second attempt breaks
+        return { payload: parsed, tokens: tokenUsage };
     }
 }
 async function callModel(prompt) {
@@ -139,9 +148,16 @@ async function callModel(prompt) {
     };
     const response = await generativeModel.generateContent(req);
     const text = response.response.candidates?.[0]?.content?.parts?.[0]?.text;
+    const metadata = response.response.usageMetadata;
     if (!text) {
         throw new Error("No text returned by Gemini");
     }
-    return JSON.parse(text);
+    return {
+        result: JSON.parse(text),
+        tokens: {
+            input: metadata?.promptTokenCount || 0,
+            output: metadata?.candidatesTokenCount || 0
+        }
+    };
 }
 //# sourceMappingURL=vertex.js.map

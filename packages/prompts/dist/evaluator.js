@@ -12,11 +12,11 @@ Your task is to perform Subtractive Grading (start at 100, deduct) based on the 
 
 RULES:
 1. Start at 100 points. 
-2. Deduct points ONLY with explicit evidence excerpts. 
+2. Deduct points ONLY with explicit evidence excerpts from the JD. 
 3. Calculate the total_score based on deductions.
-4. If score >= 80, set proceed to true.
-5. Output a 1-sentence strike_zone_rationale.
-6. List 3 recruiter_questions, focusing on missing data like compensation base if confidence is low.
+4. If compensation.confidence = low_missing, DO NOT deduct Comp Base Floor points. Instead, normalize score out of 85, flag comp_missing_high_priority = true, and generate 3 sharp recruiter_questions regarding base salary bands.
+5. If final score >= 80, set proceed to true.
+6. Output a 1-sentence strike_zone_rationale.
 7. Output MUST be strictly formatted to the JSON schema.
 `;
 export function generateEvaluatorPrompt(normalizedJobJson) {

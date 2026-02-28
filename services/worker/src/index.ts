@@ -40,6 +40,8 @@ async function main() {
       await runRef.set({
         runId, jobId, tenantId, status: 'FAILED', risks: [preprocessResult.early_disqualification], generatedAt: new Date().toISOString()
       });
+      // V3 Explicit State Update
+      await db.collection('jobs').doc(jobId).set({ jobId, tenantId, status: 'DISQUALIFIED', timestamps: { ingested_at: new Date().toISOString(), updated_at: new Date().toISOString() } });
       process.exit(0);
     }
 
@@ -47,10 +49,16 @@ async function main() {
     console.log("Normalizing JD...");
     let rawJobData = await invokeJDNormalizer(preprocessResult.cleaned_jd_text);
 
-    // 3. IDEMPOTENCY FINGERPRINT
-    // V2: Use structured hash instead of raw text hash to prevent token runs on whitespace changes
-    const rawForHash = `${rawJobData.role?.title}_${rawJobData.company?.hq}_${rawJobData.compensation?.base_max}_${rawJobData.location?.work_mode}_${jdText.substring(0, 100)}`;
-    const inputHash = crypto.createHash('sha256').update(rawForHash).digest('hex');
+    // 3. IDEMPOTENCY FINGERPRINT V3
+    // Structural Hash to prevent duplicate runs on whitespace or formatting changes from recruiter
+    const hashParts = [
+      rawJobData.role?.title?.toLowerCase().trim(),
+      rawJobData.company?.name?.toLowerCase().trim() || 'unknown_co',
+      rawJobData.location?.work_mode || 'unknown_mode',
+      rawJobData.compensation?.base_max?.toString() || 'null_base',
+      jdText.substring(0, 50)
+    ];
+    const inputHash = crypto.createHash('sha256').update(hashParts.join('|')).digest('hex');
 
     // Initialize run record
     const runRef = db.collection('scoring_runs').doc(runId);
@@ -68,8 +76,9 @@ async function main() {
       ...rawJobData,
       jobId,
       tenantId,
+      status: 'NORMALIZED',
       raw_storage: { gcs_uri: `gs://${config.storageBucket}/jd/${tenantId}/${jobId}/raw.txt`, content_hash: inputHash, stable_fingerprint: inputHash },
-      versions: { normalizer_version: '2.0.0', rubric_version: '2.0.0', prompt_version: '2.0.0' },
+      versions: { normalizer_version: '3.0.0', rubric_version: '3.0.0', prompt_version: '3.0.0' },
       timestamps: { ingested_at: new Date().toISOString(), updated_at: new Date().toISOString() }
     });
 
@@ -80,6 +89,7 @@ async function main() {
     if (dqCheck.disqualified) {
       console.log(`Disqualified due to: ${dqCheck.reasons.join(', ')}`);
       await runRef.update({ status: 'FAILED', risks: dqCheck.reasons });
+      await db.collection('jobs').doc(jobId).update({ status: 'DISQUALIFIED' });
       process.exit(0);
     }
 
@@ -99,8 +109,13 @@ async function main() {
       recruiter_questions: evaluatorResult.recruiter_questions
     });
 
+    // Explicit V3 State Update
+    await db.collection('jobs').doc(jobId).update({
+      status: evaluatorResult.proceed ? 'APPROVED' : 'REJECTED'
+    });
+
     if (!evaluatorResult.proceed) {
-      console.log("Evaluator Agent rejected candidate fit. Halting pipeline to save generation tokens.");
+      console.log("Evaluator Agent rejected candidate FitScore. Halting pipeline to save execution tokens.");
       process.exit(0);
     }
 
@@ -116,18 +131,21 @@ async function main() {
     // 7. GENERATE AGENT SUKI PAYLOAD
     console.log("Invoking Agent Suki Generator...");
     const startTime = Date.now();
-    let payload;
+    let payload: any;
+    let tokens: any;
     let schemaViolation = false;
     let errorMsg = null;
 
     try {
-      payload = await invokeAgentSuki(preprocessResult.cleaned_jd_text, factsList);
+      const sukiResult = await invokeAgentSuki(preprocessResult.cleaned_jd_text, factsList);
+      payload = sukiResult.payload;
+      tokens = sukiResult.tokens;
     } catch (err: any) {
       schemaViolation = true;
       errorMsg = err.message;
       throw err; // Escalate failure
     } finally {
-      // Always log the prompt run
+      // Always log the prompt run (V3 Observability standard)
       const logRef = db.collection('prompt_run_logs').doc(`log_${Date.now()}`);
       await logRef.set({
         logId: logRef.id,
@@ -136,12 +154,37 @@ async function main() {
         timestamp: new Date().toISOString(),
         model: config.geminiModel,
         promptType: 'AgentSuki',
-        requestPayload: preprocessResult.cleaned_jd_text.substring(0, 100) + '...', // Don't store full JD to save space
+        requestPayload: preprocessResult.cleaned_jd_text.substring(0, 100) + '...',
         responsePayload: payload || null,
         error: errorMsg,
-        schemaViolation
+        schemaViolation,
+        input_tokens: tokens?.input || 0,
+        output_tokens: tokens?.output || 0,
+        latency_ms: tokens?.latency_ms || 0,
+        prompt_version: '3.0.0',
+        schema_version: '3.0.0'
       });
       console.log(`Agent Suki invocation took ${Date.now() - startTime}ms`);
+
+      // V3 Drift Analytics
+      if (payload) {
+        const strPayload = JSON.stringify(payload);
+        const fillInCount = (strPayload.match(/\[FILL-IN-GAP: /g) || []).length;
+        const fill_in_rate = fillInCount / 15; // standard 15 bullets generated
+
+        await db.collection('system_metrics').doc(`drift_${Date.now()}`).set({
+          runId,
+          tenantId,
+          timestamp: new Date().toISOString(),
+          fill_in_rate,
+          fill_in_count: fillInCount,
+          drift_alert: fill_in_rate > 0.25
+        });
+      }
+
+      if (!errorMsg) {
+        await db.collection('jobs').doc(jobId).update({ status: 'GENERATED' });
+      }
     }
 
     // 8. DOCX RENDERING
@@ -191,6 +234,9 @@ async function main() {
       status: 'SUCCESS',
       total_score: evaluatorResult.total_score
     });
+
+    // V3 DRAFTED State (Assuming Comms sequence would trigger here)
+    await db.collection('jobs').doc(jobId).update({ status: 'RENDERED' });
 
     console.log("Worker execution completed successfully.");
     process.exit(0);
