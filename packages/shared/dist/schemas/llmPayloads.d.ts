@@ -1,5 +1,6 @@
 import { z } from 'zod';
 export declare const AgentSukiPayloadSchema: z.ZodObject<{
+    _chain_of_thought: z.ZodString;
     summary: z.ZodString;
     independent_consultancy_bullets: z.ZodArray<z.ZodObject<{
         fact_id: z.ZodString;
@@ -137,9 +138,18 @@ export declare const AgentSukiPayloadSchema: z.ZodObject<{
         proof_uri?: string | undefined;
         last_updated?: string | undefined;
     }>, "many">;
-    skills: z.ZodArray<z.ZodString, "many">;
-    reasoning: z.ZodString;
+    skills: z.ZodArray<z.ZodObject<{
+        cluster_name: z.ZodString;
+        keywords: z.ZodArray<z.ZodString, "many">;
+    }, "strip", z.ZodTypeAny, {
+        cluster_name: string;
+        keywords: string[];
+    }, {
+        cluster_name: string;
+        keywords: string[];
+    }>, "many">;
 }, "strip", z.ZodTypeAny, {
+    _chain_of_thought: string;
     summary: string;
     independent_consultancy_bullets: {
         fact_id: string;
@@ -189,9 +199,12 @@ export declare const AgentSukiPayloadSchema: z.ZodObject<{
         proof_uri?: string | undefined;
         last_updated?: string | undefined;
     }[];
-    skills: string[];
-    reasoning: string;
+    skills: {
+        cluster_name: string;
+        keywords: string[];
+    }[];
 }, {
+    _chain_of_thought: string;
     summary: string;
     independent_consultancy_bullets: {
         fact_id: string;
@@ -241,7 +254,9 @@ export declare const AgentSukiPayloadSchema: z.ZodObject<{
         proof_uri?: string | undefined;
         last_updated?: string | undefined;
     }[];
-    skills: string[];
-    reasoning: string;
+    skills: {
+        cluster_name: string;
+        keywords: string[];
+    }[];
 }>;
 export type AgentSukiPayload = z.infer<typeof AgentSukiPayloadSchema>;

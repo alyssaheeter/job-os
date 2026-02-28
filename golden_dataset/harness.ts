@@ -1,11 +1,15 @@
-import { invokeAgentSuki } from '../services/worker/src/vertex.js';
-import { calculateFitScore, isQualified, AgentSukiPayloadSchema } from '@jhos/shared';
+import { invokeAgentSuki, invokeJDNormalizer, invokeEvaluatorAgent } from '../services/worker/src/vertex.js';
+import { AgentSukiPayloadSchema, checkDisqualifiers } from '@jhos/shared';
+import { preprocessJD } from '../services/worker/src/preprocessor.js';
 
 // Mock Data
 const MOCK_JD = `
 Senior Solutions Engineer - Enterprise AI
+Equal Opportunity Employer. We offer great 401k and Dental/Vision benefits. 
 We are looking for a highly technical presales engineer to lead enterprise data center modernization and AI initiatives.
 Must have experience driving large deals (>$1M) and working cross-functionally.
+Compensation: $250k OTE. (Base is commensurate with experience).
+Requires weekly travel to customer sites.
 Remote allowed.
 `;
 
@@ -23,43 +27,72 @@ const MOCK_FACTS = [
 ];
 
 async function runGoldenDataset() {
-  console.log("=== JHOS GOLDEN DATASET HARNESS ===");
+  console.log("=== JHOS v2 GOLDEN DATASET HARNESS ===");
   try {
-    console.log("1. Invoking Agent Suki with Mock JD and Facts...");
-    const payload = await invokeAgentSuki(MOCK_JD, MOCK_FACTS);
+    console.log("1. Testing Deterministic Preprocessor...");
+    const preprocessResult = preprocessJD(MOCK_JD);
+    if (!preprocessResult.removed_sections.some(s => s.toLowerCase().includes('401k'))) {
+      throw new Error("Preprocessor failed to strip EEOC/Benefits boilerplate.");
+    }
+    console.log(`-> Preprocessor: OK (Stripped ${preprocessResult.removed_sections.length} sections)`);
 
-    console.log("2. Validating JSON Schema Adherence...");
-    // Payload was already validated by invokeAgentSuki via zod, but we'll confirm
+    console.log("2. Invoking JD Normalizer...");
+    const normalizedData = await invokeJDNormalizer(preprocessResult.cleaned_jd_text);
+
+    if (normalizedData.compensation?.confidence !== 'low_missing') {
+      console.warn("WARNING: Normalizer failed to set compensation confidence to 'low_missing' when only OTE was provided.");
+    }
+
+    console.log("3. Testing Disqualifier Gate...");
+    // Inject required IDs for valid schema
+    normalizedData.jobId = 'mock_job_1';
+    normalizedData.tenantId = 'tenant_1';
+
+    const dqCheck = checkDisqualifiers(normalizedData);
+    if (dqCheck.disqualified) {
+      console.warn(`Disqualifier caught risks: ${dqCheck.reasons.join(', ')}`);
+      // We expect travel to potentially fail it depending on the inference mapping. 
+      // For testing, we log it but proceed to Evaluator to test subtractive logic anyway.
+    } else {
+      console.log("-> Disqualifier: PASSED");
+    }
+
+    console.log("4. Invoking Evaluator Agent (Subtractive Grading)...");
+    const evaluatorResult = await invokeEvaluatorAgent(JSON.stringify(normalizedData));
+    console.log(`-> Evaluator Score: ${evaluatorResult.total_score} | Proceed: ${evaluatorResult.proceed}`);
+    console.log(`-> Strike Zone Rationale: ${evaluatorResult.strike_zone_rationale}`);
+    console.log(`-> Recruiter Questions:`, evaluatorResult.recruiter_questions);
+
+    if (evaluatorResult.total_score >= 100) {
+      throw new Error("Evaluator failed to subtract points representing true subtractive logic.");
+    }
+
+    console.log("5. Invoking Agent Suki with Normalized Output and Facts...");
+    const payload = await invokeAgentSuki(JSON.stringify(normalizedData), MOCK_FACTS);
+
+    console.log("6. Validating JSON Schema Adherence...");
     AgentSukiPayloadSchema.parse(payload);
     console.log("-> Schema: OK");
 
-    // 3. Simulated FitScore 
-    const mockRubric = {
-      salesEngineerFit: 1, compensation: 0.8, technicalDepth: 1, dealComplexity: 1, remote: 1, revenueScope: 1, industry: 0.5
-    };
-    const fitScore = calculateFitScore(mockRubric);
-    console.log(`3. FitScore Threshold check (Score: ${fitScore})`);
-
-    if (isQualified(fitScore)) {
-      console.log("-> FitScore: PASSED");
-    } else {
-      throw new Error("FitScore failed to reach threshold 80+");
-    }
-
-    console.log("4. Validating OMST Compliance & Hallucination Fallbacks...");
+    console.log("7. Validating OMST Compliance, Fact Traceability & Hallucination Fallbacks...");
     const strPayload = JSON.stringify(payload);
-    if (!strPayload.includes('[FILL-IN]')) {
-      console.warn("WARNING: No [FILL-IN] fallbacks detected. Ensure the model isn't hallucinating missing facts.");
+
+    if (!payload._chain_of_thought) {
+      throw new Error("Agent Suki failed to generate _chain_of_thought prior to payload generation.");
     }
 
-    // Check forbidden adjectives from V1.1 prompt rules (example)
-    const forbidden = ['guru', 'ninja', 'rockstar'];
+    if (!strPayload.includes('[FILL-IN') && !strPayload.includes('F001')) {
+      throw new Error("WARNING: OMST traceability missed mapping the fact_id (F001) or didn't generate missing data gaps.");
+    }
+
+    // Check forbidden adjectives from V1.1 / V2
+    const forbidden = ['guru', 'ninja', 'rockstar', 'dynamic', 'innovative'];
     for (const word of forbidden) {
       if (strPayload.toLowerCase().includes(word)) {
         throw new Error(`OMST/Tone violation: Found forbidden word '${word}'`);
       }
     }
-    console.log("-> OMST/Hallucination Checks: OK");
+    console.log("-> OMST/Hallucination/Traceability Checks: OK");
 
     console.log("\n=== GOLDEN DATASET PASSED ===");
     console.log("Sample AI Payload Output:");

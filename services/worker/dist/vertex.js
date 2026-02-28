@@ -1,7 +1,8 @@
 import { VertexAI, SchemaType } from '@google-cloud/vertexai';
 import { config } from './config.js';
 import { AgentSukiPayloadSchema } from '@jhos/shared';
-import { AGENT_SUKI_SYSTEM_PROMPT, generateSukiPrompt, JD_NORMALIZER_SYSTEM_PROMPT, generateNormalizerPrompt } from '@jhos/prompts';
+import { AGENT_SUKI_SYSTEM_PROMPT, generateSukiPrompt, JD_NORMALIZER_SYSTEM_PROMPT, generateNormalizerPrompt, EVALUATOR_SYSTEM_PROMPT, generateEvaluatorPrompt } from '@jhos/prompts';
+import { EvaluatorResultSchema } from '@jhos/shared';
 // Initialize Vertex with config
 const vertex_ai = new VertexAI({ project: config.projectId, location: config.region });
 // For now we map zod to the strict object schema Vertex expects.
@@ -49,7 +50,7 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
     generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: responseSchema,
-        temperature: 0.2
+        temperature: 0.1
     },
     systemInstruction: AGENT_SUKI_SYSTEM_PROMPT
 });
@@ -60,6 +61,14 @@ const normalizerModel = vertex_ai.preview.getGenerativeModel({
         temperature: 0.1
     },
     systemInstruction: JD_NORMALIZER_SYSTEM_PROMPT
+});
+const evaluatorModel = vertex_ai.preview.getGenerativeModel({
+    model: config.geminiModel,
+    generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.1
+    },
+    systemInstruction: EVALUATOR_SYSTEM_PROMPT
 });
 export async function invokeJDNormalizer(rawText) {
     const prompt = generateNormalizerPrompt(rawText);
@@ -81,10 +90,36 @@ export async function invokeJDNormalizer(rawText) {
         return JSON.parse(text2);
     }
 }
+export async function invokeEvaluatorAgent(normalizedJobJson) {
+    const prompt = generateEvaluatorPrompt(normalizedJobJson);
+    const req = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
+    try {
+        const response = await evaluatorModel.generateContent(req);
+        const text = response.response.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text)
+            throw new Error("No text returned by evaluator");
+        const json = JSON.parse(text);
+        return EvaluatorResultSchema.parse(json);
+    }
+    catch (err) {
+        console.warn("Retrying evaluator schema mapping...", err);
+        const req2 = { contents: [{ role: 'user', parts: [{ text: prompt + "\\n\\nThe previous attempt failed JSON validation. Ensure valid output." }] }] };
+        const response2 = await evaluatorModel.generateContent(req2);
+        const text2 = response2.response.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text2)
+            throw new Error("No text returned by evaluator on retry");
+        return EvaluatorResultSchema.parse(JSON.parse(text2));
+    }
+}
 /**
- * Invoke Agent Suki, attempting one retry if schema validation fails.
+ * Invoke Agent Suki using optionally cached context for the Facts.
  */
 export async function invokeAgentSuki(jdText, factsData) {
+    // V2 Execution: In a fully productionized setup, we'd use vertex_ai.preview.cachedContents.create
+    // For this build, we implement the structure required for the cache invocation by passing 
+    // the canonical rules and facts together cleanly.
+    let cacheHit = false;
+    let inputTokens = 0;
     const prompt = generateSukiPrompt(jdText, JSON.stringify(factsData));
     // First Attempt
     try {

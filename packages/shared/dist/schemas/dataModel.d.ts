@@ -84,68 +84,102 @@ export declare const JobSchema: z.ZodObject<{
         seniority: z.ZodString;
         employment_type: z.ZodString;
         manager_title_hint: z.ZodOptional<z.ZodString>;
+        target_ats_title: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         title: string;
         role_family: string;
         seniority: string;
         employment_type: string;
+        target_ats_title: string;
         manager_title_hint?: string | undefined;
     }, {
         title: string;
         role_family: string;
         seniority: string;
         employment_type: string;
+        target_ats_title: string;
         manager_title_hint?: string | undefined;
     }>;
     location: z.ZodObject<{
         work_mode: z.ZodEnum<["remote", "hybrid", "onsite", "unknown"]>;
         geo_requirement: z.ZodString;
         onsite_days: z.ZodNumber;
-        travel_percent: z.ZodNumber;
+        travel_percent: z.ZodOptional<z.ZodNumber>;
+        travel_profile: z.ZodOptional<z.ZodObject<{
+            regional_max: z.ZodNumber;
+            global_max: z.ZodNumber;
+            travel_inference_basis: z.ZodString;
+            travel_confidence: z.ZodEnum<["high", "inferred", "low"]>;
+        }, "strip", z.ZodTypeAny, {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        }, {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        }>>;
         excerpt: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         work_mode: "unknown" | "remote" | "hybrid" | "onsite";
         geo_requirement: string;
         onsite_days: number;
-        travel_percent: number;
         excerpt: string;
+        travel_percent?: number | undefined;
+        travel_profile?: {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        } | undefined;
     }, {
         work_mode: "unknown" | "remote" | "hybrid" | "onsite";
         geo_requirement: string;
         onsite_days: number;
-        travel_percent: number;
         excerpt: string;
+        travel_percent?: number | undefined;
+        travel_profile?: {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        } | undefined;
     }>;
     compensation: z.ZodObject<{
-        base_min: z.ZodOptional<z.ZodNumber>;
-        base_max: z.ZodOptional<z.ZodNumber>;
-        ote_min: z.ZodOptional<z.ZodNumber>;
-        ote_max: z.ZodOptional<z.ZodNumber>;
+        base_min: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+        base_max: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+        ote_min: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+        ote_max: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
         split: z.ZodOptional<z.ZodString>;
         equity: z.ZodBoolean;
-        confidence: z.ZodEnum<["high", "low"]>;
+        confidence: z.ZodEnum<["high", "medium", "low_missing"]>;
         excerpt_lines: z.ZodArray<z.ZodString, "many">;
+        comp_excerpts: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         missing_fields: z.ZodArray<z.ZodString, "many">;
     }, "strip", z.ZodTypeAny, {
         equity: boolean;
-        confidence: "high" | "low";
+        confidence: "high" | "medium" | "low_missing";
         excerpt_lines: string[];
         missing_fields: string[];
-        base_min?: number | undefined;
-        base_max?: number | undefined;
-        ote_min?: number | undefined;
-        ote_max?: number | undefined;
+        base_min?: number | null | undefined;
+        base_max?: number | null | undefined;
+        ote_min?: number | null | undefined;
+        ote_max?: number | null | undefined;
         split?: string | undefined;
+        comp_excerpts?: string[] | undefined;
     }, {
         equity: boolean;
-        confidence: "high" | "low";
+        confidence: "high" | "medium" | "low_missing";
         excerpt_lines: string[];
         missing_fields: string[];
-        base_min?: number | undefined;
-        base_max?: number | undefined;
-        ote_min?: number | undefined;
-        ote_max?: number | undefined;
+        base_min?: number | null | undefined;
+        base_max?: number | null | undefined;
+        ote_min?: number | null | undefined;
+        ote_max?: number | null | undefined;
         split?: string | undefined;
+        comp_excerpts?: string[] | undefined;
     }>;
     ats_requirements: z.ZodObject<{
         must_haves: z.ZodArray<z.ZodString, "many">;
@@ -222,15 +256,32 @@ export declare const JobSchema: z.ZodObject<{
         heavy_travel: boolean;
         comp_below_floor: boolean;
     }>;
+    negotiation_levers: z.ZodOptional<z.ZodObject<{
+        market_duration_days: z.ZodOptional<z.ZodNumber>;
+        comp_flexibility_signals: z.ZodArray<z.ZodString, "many">;
+        urgency_flags: z.ZodArray<z.ZodString, "many">;
+    }, "strip", z.ZodTypeAny, {
+        comp_flexibility_signals: string[];
+        urgency_flags: string[];
+        market_duration_days?: number | undefined;
+    }, {
+        comp_flexibility_signals: string[];
+        urgency_flags: string[];
+        market_duration_days?: number | undefined;
+    }>>;
+    operator_affinity_score: z.ZodOptional<z.ZodBoolean>;
     raw_storage: z.ZodObject<{
         gcs_uri: z.ZodString;
         content_hash: z.ZodString;
+        stable_fingerprint: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         gcs_uri: string;
         content_hash: string;
+        stable_fingerprint?: string | undefined;
     }, {
         gcs_uri: string;
         content_hash: string;
+        stable_fingerprint?: string | undefined;
     }>;
     versions: z.ZodObject<{
         normalizer_version: z.ZodString;
@@ -261,6 +312,7 @@ export declare const JobSchema: z.ZodObject<{
         role_family: string;
         seniority: string;
         employment_type: string;
+        target_ats_title: string;
         manager_title_hint?: string | undefined;
     };
     jobId: string;
@@ -284,19 +336,26 @@ export declare const JobSchema: z.ZodObject<{
         work_mode: "unknown" | "remote" | "hybrid" | "onsite";
         geo_requirement: string;
         onsite_days: number;
-        travel_percent: number;
         excerpt: string;
+        travel_percent?: number | undefined;
+        travel_profile?: {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        } | undefined;
     };
     compensation: {
         equity: boolean;
-        confidence: "high" | "low";
+        confidence: "high" | "medium" | "low_missing";
         excerpt_lines: string[];
         missing_fields: string[];
-        base_min?: number | undefined;
-        base_max?: number | undefined;
-        ote_min?: number | undefined;
-        ote_max?: number | undefined;
+        base_min?: number | null | undefined;
+        base_max?: number | null | undefined;
+        ote_min?: number | null | undefined;
+        ote_max?: number | null | undefined;
         split?: string | undefined;
+        comp_excerpts?: string[] | undefined;
     };
     ats_requirements: {
         must_haves: string[];
@@ -326,6 +385,7 @@ export declare const JobSchema: z.ZodObject<{
     raw_storage: {
         gcs_uri: string;
         content_hash: string;
+        stable_fingerprint?: string | undefined;
     };
     versions: {
         normalizer_version: string;
@@ -336,12 +396,19 @@ export declare const JobSchema: z.ZodObject<{
         ingested_at: string;
         updated_at: string;
     };
+    negotiation_levers?: {
+        comp_flexibility_signals: string[];
+        urgency_flags: string[];
+        market_duration_days?: number | undefined;
+    } | undefined;
+    operator_affinity_score?: boolean | undefined;
 }, {
     role: {
         title: string;
         role_family: string;
         seniority: string;
         employment_type: string;
+        target_ats_title: string;
         manager_title_hint?: string | undefined;
     };
     jobId: string;
@@ -365,19 +432,26 @@ export declare const JobSchema: z.ZodObject<{
         work_mode: "unknown" | "remote" | "hybrid" | "onsite";
         geo_requirement: string;
         onsite_days: number;
-        travel_percent: number;
         excerpt: string;
+        travel_percent?: number | undefined;
+        travel_profile?: {
+            regional_max: number;
+            global_max: number;
+            travel_inference_basis: string;
+            travel_confidence: "high" | "inferred" | "low";
+        } | undefined;
     };
     compensation: {
         equity: boolean;
-        confidence: "high" | "low";
+        confidence: "high" | "medium" | "low_missing";
         excerpt_lines: string[];
         missing_fields: string[];
-        base_min?: number | undefined;
-        base_max?: number | undefined;
-        ote_min?: number | undefined;
-        ote_max?: number | undefined;
+        base_min?: number | null | undefined;
+        base_max?: number | null | undefined;
+        ote_min?: number | null | undefined;
+        ote_max?: number | null | undefined;
         split?: string | undefined;
+        comp_excerpts?: string[] | undefined;
     };
     ats_requirements: {
         must_haves: string[];
@@ -407,6 +481,7 @@ export declare const JobSchema: z.ZodObject<{
     raw_storage: {
         gcs_uri: string;
         content_hash: string;
+        stable_fingerprint?: string | undefined;
     };
     versions: {
         normalizer_version: string;
@@ -417,6 +492,12 @@ export declare const JobSchema: z.ZodObject<{
         ingested_at: string;
         updated_at: string;
     };
+    negotiation_levers?: {
+        comp_flexibility_signals: string[];
+        urgency_flags: string[];
+        market_duration_days?: number | undefined;
+    } | undefined;
+    operator_affinity_score?: boolean | undefined;
 }>;
 export type Job = z.infer<typeof JobSchema>;
 export declare const ScoringRunSchema: z.ZodObject<{
@@ -514,6 +595,10 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     responsePayload: z.ZodAny;
     error: z.ZodOptional<z.ZodString>;
     schemaViolation: z.ZodDefault<z.ZodBoolean>;
+    cache_id: z.ZodOptional<z.ZodString>;
+    cache_hit: z.ZodDefault<z.ZodBoolean>;
+    input_tokens: z.ZodOptional<z.ZodNumber>;
+    output_tokens: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     tenantId: string;
     runId: string;
@@ -522,9 +607,13 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     model: string;
     promptType: string;
     schemaViolation: boolean;
+    cache_hit: boolean;
     requestPayload?: any;
     responsePayload?: any;
     error?: string | undefined;
+    cache_id?: string | undefined;
+    input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
 }, {
     tenantId: string;
     runId: string;
@@ -536,5 +625,9 @@ export declare const PromptRunLogSchema: z.ZodObject<{
     responsePayload?: any;
     error?: string | undefined;
     schemaViolation?: boolean | undefined;
+    cache_id?: string | undefined;
+    cache_hit?: boolean | undefined;
+    input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
 }>;
 export type PromptRunLog = z.infer<typeof PromptRunLogSchema>;

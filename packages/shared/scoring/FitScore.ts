@@ -10,6 +10,22 @@ export interface RubricScores {
     industry: number;
 }
 
+export interface EvaluatorDeduction {
+    category: string;
+    points_deducted: number;
+    reason_code: string;
+    evidence_excerpt: string;
+}
+
+export interface EvaluatorResult {
+    total_score: number;
+    proceed: boolean;
+    deductions: EvaluatorDeduction[];
+    strike_zone_rationale: string;
+    recruiter_questions: string[];
+    unknown_fields: string[];
+}
+
 const RUBRIC_WEIGHTS = {
     salesEngineerFit: 30,
     compensation: 20,
@@ -39,16 +55,13 @@ export function calculateFitScore(rubricScores: RubricScores): number {
     return Math.round(totalScore);
 }
 
-export const MIN_FITSCORE_THRESHOLD = 80;
-
-export function isQualified(score: number): boolean {
-    return score >= MIN_FITSCORE_THRESHOLD;
+export function calculateSubtractiveFitScore(deductions: EvaluatorDeduction[]): number {
+    const totalDeductions = deductions.reduce((acc, current) => acc + current.points_deducted, 0);
+    return Math.max(0, 100 - totalDeductions);
 }
 
-export function evaluateThreshold(score: number): 'AUTO_APPLY' | 'MANUAL_REVIEW' | 'SKIP' {
-    if (score >= 78) return 'AUTO_APPLY';
-    if (score >= 65) return 'MANUAL_REVIEW';
-    return 'SKIP';
+export function isQualified(fitScore: number): boolean {
+    return fitScore >= 80;
 }
 
 export function checkDisqualifiers(job: Job): { disqualified: boolean; reasons: string[] } {
@@ -57,8 +70,21 @@ export function checkDisqualifiers(job: Job): { disqualified: boolean; reasons: 
     if (job.risk_flags.pure_ae) reasons.push("Pure AE role");
     if (job.risk_flags.internal_it_support) reasons.push("Internal IT Support role");
     if (job.risk_flags.demo_monkey_risk) reasons.push("Demo-only role");
-    if (job.risk_flags.heavy_travel || job.location.travel_percent > 40) reasons.push("Travel exceeds 40%");
-    if (job.risk_flags.comp_below_floor || (job.compensation.base_max && job.compensation.base_max < 150000)) reasons.push("Base compensation below floor ($150k)");
+
+    // V2 Travel Hardening Logic
+    const regionalTravel = job.location.travel_profile?.regional_max || 0;
+    const globalTravel = job.location.travel_profile?.global_max || 0;
+    if (regionalTravel > 40) reasons.push("Regional travel exceeds 40%");
+    if (globalTravel > 10) reasons.push("Global travel exceeds 10%");
+
+    // Work mode disqualifiers
+    if (job.location.work_mode === 'onsite' && job.location.onsite_days >= 5) reasons.push("5-day mandatory onsite");
+
+    // Compensation Logic (V2): Don't drop if base is missing.
+    // Base is missing and explicitly tracked, recruiter question covers it. Only drop if explicit base < 150k
+    if (job.risk_flags.comp_below_floor || (job.compensation.base_max && job.compensation.base_max < 150000)) {
+        reasons.push("Explicit base compensation below floor ($150k)");
+    }
 
     return { disqualified: reasons.length > 0, reasons };
 }

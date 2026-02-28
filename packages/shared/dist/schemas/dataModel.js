@@ -34,24 +34,32 @@ export const JobSchema = z.object({
         role_family: z.string(),
         seniority: z.string(),
         employment_type: z.string(),
-        manager_title_hint: z.string().optional()
+        manager_title_hint: z.string().optional(),
+        target_ats_title: z.string()
     }),
     location: z.object({
         work_mode: z.enum(['remote', 'hybrid', 'onsite', 'unknown']),
         geo_requirement: z.string(),
         onsite_days: z.number(),
-        travel_percent: z.number(),
+        travel_percent: z.number().optional(),
+        travel_profile: z.object({
+            regional_max: z.number(),
+            global_max: z.number(),
+            travel_inference_basis: z.string(),
+            travel_confidence: z.enum(['high', 'inferred', 'low'])
+        }).optional(),
         excerpt: z.string()
     }),
     compensation: z.object({
-        base_min: z.number().optional(),
-        base_max: z.number().optional(),
-        ote_min: z.number().optional(),
-        ote_max: z.number().optional(),
+        base_min: z.number().nullable().optional(),
+        base_max: z.number().nullable().optional(),
+        ote_min: z.number().nullable().optional(),
+        ote_max: z.number().nullable().optional(),
         split: z.string().optional(),
         equity: z.boolean(),
-        confidence: z.enum(['high', 'low']),
+        confidence: z.enum(['high', 'medium', 'low_missing']),
         excerpt_lines: z.array(z.string()),
+        comp_excerpts: z.array(z.string()).optional(),
         missing_fields: z.array(z.string())
     }),
     ats_requirements: z.object({
@@ -79,9 +87,16 @@ export const JobSchema = z.object({
         heavy_travel: z.boolean(),
         comp_below_floor: z.boolean()
     }),
+    negotiation_levers: z.object({
+        market_duration_days: z.number().optional(),
+        comp_flexibility_signals: z.array(z.string()),
+        urgency_flags: z.array(z.string())
+    }).optional(),
+    operator_affinity_score: z.boolean().optional(),
     raw_storage: z.object({
         gcs_uri: z.string(),
-        content_hash: z.string()
+        content_hash: z.string(),
+        stable_fingerprint: z.string().optional()
     }),
     versions: z.object({
         normalizer_version: z.string(),
@@ -126,6 +141,10 @@ export const PromptRunLogSchema = z.object({
     requestPayload: z.any(),
     responsePayload: z.any(),
     error: z.string().optional(),
-    schemaViolation: z.boolean().default(false)
+    schemaViolation: z.boolean().default(false),
+    cache_id: z.string().optional(),
+    cache_hit: z.boolean().default(false),
+    input_tokens: z.number().optional(),
+    output_tokens: z.number().optional()
 });
 //# sourceMappingURL=dataModel.js.map
