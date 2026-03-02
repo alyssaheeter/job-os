@@ -45,7 +45,7 @@ const responseSchema: Schema = {
         att_cse_bullets: { type: SchemaType.ARRAY },
         att_b2b_bullets: { type: SchemaType.ARRAY },
         skills: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-        reasoning: { type: SchemaType.STRING }
+        _chain_of_thought: { type: SchemaType.STRING }
     },
     required: [
         'summary',
@@ -54,7 +54,7 @@ const responseSchema: Schema = {
         'att_cse_bullets',
         'att_b2b_bullets',
         'skills',
-        'reasoning'
+        '_chain_of_thought'
     ]
 };
 

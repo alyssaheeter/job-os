@@ -68,7 +68,7 @@ async function runGoldenDataset() {
     }
 
     console.log("5. Invoking Agent Suki with Normalized Output and Facts...");
-    const payload = await invokeAgentSuki(JSON.stringify(normalizedData), MOCK_FACTS);
+    const { payload } = await invokeAgentSuki(JSON.stringify(normalizedData), MOCK_FACTS);
 
     console.log("6. Validating JSON Schema Adherence...");
     AgentSukiPayloadSchema.parse(payload);
