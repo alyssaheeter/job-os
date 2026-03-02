@@ -10,13 +10,16 @@ app.use(express.json());
 const db = new Firestore();
 // Middleware to verify basic auth or token for webhook trigger
 app.use((req, res, next) => {
-    if (req.path === '/health')
+    if (req.path === '/health' || req.path === '/')
         return next();
     const authLine = req.header('Authorization');
     if (!authLine) {
         return res.status(401).send('Missing Authorization header');
     }
     next();
+});
+app.get('/', (req, res) => {
+    res.send('JHOS API is operational. Authorization required for non-root routes.');
 });
 // A webhook primarily used to trigger outreach or scheduled flows
 app.post('/webhook/draft-outreach', async (req, res) => {
