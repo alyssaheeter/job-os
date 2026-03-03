@@ -12,6 +12,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
+    "start": "npm start --workspace=@jhos/api",
     "start:worker": "npm run start --workspace=services/worker",
     "start:api": "npm run start --workspace=services/api",
     "deploy:alyssa": "bash ./scripts/deploy-alyssa.sh"
@@ -33,6 +34,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "@google/clasp": "^2.4.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
