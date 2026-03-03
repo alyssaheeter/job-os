@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import apiClient from '@/lib/apiClient';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +26,7 @@ export function JobDetail({ jobId }: { jobId: string }) {
   const handleAction = async (endpoint: string, actionName: string) => {
     setActioning(actionName);
     try {
-      await fetch(`/api/jobs/${jobId}/${endpoint}`, { method: 'POST' });
+      await apiClient.post(`/api/jobs/${jobId}/${endpoint}`);
     } catch (err) {
       console.error('Failed action:', err);
     } finally {
